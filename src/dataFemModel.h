@@ -242,7 +242,7 @@ void dataFemModel::writeData()
 
 	//Print Program
 	fout << "+-------------------------------------------------------------------------+" << endl;
-	fout << "|              Regolith: A 2-D Finite Elements Program                    |" << endl;
+	fout << "|                Gauss : A 2-D Finite Elements Program                    |" << endl;
 	fout << "+-------------------------------------------------------------------------+" << endl << endl;
 
 	//Print Title

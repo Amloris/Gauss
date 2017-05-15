@@ -89,10 +89,10 @@ void globOpenFiles()
 {	//open input file, out file (results file), con file (contour plot file), and errorlog.
 
 	//Open Files
-	fin.open("sq.inp", ios::in);
-	fout.open("fem.out", ios::out | ios::trunc);
-	fplot.open("conplot.out", ios::out | ios::trunc);
-	ferr.open("Error_Log.txt", ios::out | ios::trunc);
+	fin.open("../data/sq.inp", ios::in);
+	fout.open("../data/fem.out", ios::out | ios::trunc);
+	fplot.open("../data/conplot.out", ios::out | ios::trunc);
+	ferr.open("../data/Error_Log.txt", ios::out | ios::trunc);
 
 	//Check for Successful Open
 	bool success = true;

@@ -1,10 +1,9 @@
 //-----------------------------------------------------------------------------
-//  Regolith: A 2-D Finite Elements Program
+//  Gauss: A 2-D Finite Elements Program
 //-----------------------------------------------------------------------------
 //  Program Info
 //		Creator: Aaron Robertson
 //		Date   : April 2017
-//		Class  : ME 862
 //
 //  Program Notes:
 //      The input file must be located in the same directory as main.cpp.
