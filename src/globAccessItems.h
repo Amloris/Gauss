@@ -74,6 +74,7 @@ header1.h) which is not allowed in c++.
 #ifndef globAccessItems_h
 #define globAccessItems_h
 
+#include <fstream>
 #include "defiMatrix.h"
 #include "defiVector.h"
 

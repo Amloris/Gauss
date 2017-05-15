@@ -39,7 +39,17 @@ public:
 //Functions
 //-----------------------------------------------------------------------------
 defiMatrix::defiMatrix()  { std::cout << "Creating defiMatrix Class Object" << endl; }
-defiMatrix::~defiMatrix() { /*std::cout << "Deleting defiMatrix Class Object" << endl;*/ }
+defiMatrix::~defiMatrix()
+{
+	//Deallocate Memory
+	for (int i = 0; i < m_nr; i++)
+	{
+		delete[] m_coeff[i];
+	}
+	delete[] m_coeff;
+
+	//cout << "Deleting defiMatrix Class Object" << endl; 
+}
 defiMatrix::defiMatrix(int nr, int nc)
 {
 	//Load Data

@@ -5,8 +5,6 @@ The defiVector class stores a vector (a 1D array).
 #ifndef defiVector_h
 #define defiVector_h
 
-#include <fstream>
-
 using namespace std;
 
 class defiVector {
@@ -35,7 +33,13 @@ public:
 //Functions
 //-----------------------------------------------------------------------------
 defiVector::defiVector()  { std::cout << "Creating defiVector Class Object" << endl; }
-defiVector::~defiVector() { /*std::cout << "Deleting defiVector Class Object" << endl;*/ }
+defiVector::~defiVector()
+{ 
+	//Deallocate Memory
+	delete[] m_coeff;
+
+	//cout << "Deleting defiVector Class Object" << endl; 
+}
 defiVector::defiVector(int nr)
 {
 	//Dynamically Allocate Space
