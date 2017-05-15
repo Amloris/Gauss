@@ -9,8 +9,6 @@ in the globalAccessItems.h header file.
 #ifndef defiMatrix_h
 #define defiMatrix_h
 
-#include "defiVector.h"
-
 using namespace std;
 
 class defiMatrix {	//this is a matrix class which can be unsymmetric and full
