@@ -14,10 +14,6 @@ data required in postprocessing.
 #ifndef calcFemSolver_h
 #define calcFemSolver_h
 
-//#include "dataFemModel.h"
-#include "defiMatrix.h"
-#include "defiVector.h"
-
 using namespace std;
 
 class calcFemSolver

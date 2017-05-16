@@ -30,8 +30,6 @@ d_elems[i] = new defiElementQ8(eID, mat, numEnodes, enodes);
 #include "defiPointBC.h"
 #include "defiNaturalBC.h"
 
-//#include "globAccessItems.h"
-
 using namespace std;
 
 class dataFemModel
@@ -44,13 +42,13 @@ private:
 	defiPointBC** d_pointBCs;	       //array of prts to point force B.C. class (defiPointBC). The array size is equal to the total number of point force BCs in the FEM model.
 	defiNaturalBC** d_naturalBCs;	   //array of prts to natural B.C. class (defiNaturalBC). The array size is equal to the total number of natural BCs in the FEM model.
 	string d_title;		               //title of the fem analysis (from the input data file)
-	int d_numNodes;	                   //total number of nodes of the fem model
-	int d_numElems;	                   //total number of elements of the fem model
-	int d_numMats;		               //total number of materials of the fem model
-	int d_probType;	                   //problem type: =0 for axisymmetric (irrelevant in this course); =1 for plane stress; =2 for plane strain.
-	int d_numEssentialBCs;		       //number of essential B.C. of the fem model
-	int d_numPointBCs;			       //number of point force B.C.
-	int d_numNaturalBCs;		       //number of natural B.C
+	int d_numNodes = NULL;	           //total number of nodes of the fem model
+	int d_numElems = NULL;	           //total number of elements of the fem model
+	int d_numMats  = NULL;		       //total number of materials of the fem model
+	int d_probType = NULL;	           //problem type: =0 for axisymmetric (irrelevant in this course); =1 for plane stress; =2 for plane strain.
+	int d_numEssentialBCs = NULL;	   //number of essential B.C. of the fem model
+	int d_numPointBCs = NULL;		   //number of point force B.C.
+	int d_numNaturalBCs = NULL;		   //number of natural B.C
 	int d_neq;					       //total number of system equations (which is equal to number of nodes * 2 - number of essential BCs)
 
 public:
@@ -84,17 +82,17 @@ public:
 
 //Functions
 //-----------------------------------------------------------------------------
-dataFemModel::dataFemModel()  { std::cout << "Creating dataFemModel Class Object" << endl; }
-dataFemModel::~dataFemModel() { std::cout << "Deleting dataFemModel Class Object" << endl; }
+dataFemModel::dataFemModel()  { cout << "Creating dataFemModel Class Object" << endl; }
+dataFemModel::~dataFemModel() { cout << "Deleting dataFemModel Class Object" << endl; }
 
-int dataFemModel::getNumNodes() { return d_numNodes; }	   //return d_numNodes
-int dataFemModel::getNumElems() { return d_numElems; }	   //return d_numElems
-int dataFemModel::getNumMats()  { return d_numMats;  }     //return d_numMats     
-int dataFemModel::getProbType() { return d_probType; }	   //return d_probType
-int dataFemModel::getNumEssentialBCs() { return d_numEssentialBCs; }      //return d_numEssentialBCs
-int dataFemModel::getNumPointBCs()     { return d_numPointBCs; }		  //return d_numPointBCs
-int dataFemModel::getNumNaturalBCs()   { return d_numNaturalBCs; }	      //return d_numNaturalBCs
-int dataFemModel::getNumEq()    { return d_neq; }          //return d_neq
+int dataFemModel::getNumNodes()		   { return d_numNodes; }	      //return d_numNodes
+int dataFemModel::getNumElems()		   { return d_numElems; }	      //return d_numElems
+int dataFemModel::getNumMats()		   { return d_numMats;  }         //return d_numMats     
+int dataFemModel::getProbType()		   { return d_probType; }	      //return d_probType
+int dataFemModel::getNumEssentialBCs() { return d_numEssentialBCs; }  //return d_numEssentialBCs
+int dataFemModel::getNumPointBCs()     { return d_numPointBCs; }	  //return d_numPointBCs
+int dataFemModel::getNumNaturalBCs()   { return d_numNaturalBCs; }	  //return d_numNaturalBCs
+int dataFemModel::getNumEq()		   { return d_neq; }              //return d_neq
 
 void dataFemModel::readData()
 {   //Reads the model data and dynamically allocates memory for data storage
@@ -115,6 +113,23 @@ void dataFemModel::readData()
 	d_matprops = new defiMaterial*[d_numMats];   //Material Storage
 	d_elems = new defiElementQ8*[d_numElems];    //Element Storage
 	d_nodes = new defiNode*[d_numNodes];         //Node Storage
+
+	if (d_matprops == NULL) {
+		cout << "ERROR::MATERIAL_CLASS::MEMORY_ALLOCATION" << endl;
+		exit(0);
+	}
+	if (d_elems == NULL) {
+		cout << "ERROR::ELEMENT_CLASS::MEMORY_ALLOCATION" << endl;
+		exit(0);
+	}
+	if (d_nodes == NULL) {
+		cout << "ERROR::NODE_CLASS::MEMORY_ALLOCATION" << endl;
+		exit(0);
+	}
+	if (d_probType == NULL) {
+		cout << "ERROR::PROBLEM_TYPE::DEFINITION" << endl;
+		exit(0);
+	}
 
 	//Fill Material Arrays
 	for (int i = 0; i < d_numMats; i++)
