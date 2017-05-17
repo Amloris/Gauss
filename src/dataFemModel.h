@@ -148,29 +148,45 @@ void dataFemModel::readData()
 	}
 
 	//Fill Element Arrays
-	for (int i = 0; i < d_numElems; i++)
+	for (int i = 0; i < d_numNodes; i++)         //Assign node id's
 	{
-		int eID;                       //Element ID
-		int mat;                       //Material ID
-		int numNodes = 8;              //8 nodes for a q8 element
+		d_nodes[i] = new defiNode(i + 1);         
+	}
 
-		defiNode** enodes;
-		enodes = new defiNode*[numNodes];
+	for (int i = 0; i < d_numElems; i++)         //Assign element data
+	{
+		int eID;						         //Element ID
+		int mat;                                 //Material ID
+		int const numNodes = 8;                  //8 nodes for a q8 element
+
+		defiMaterial* eMat;                      //Link to the global materials
+		defiNode* eNodes[numNodes];              //Link to the global nodes
+
 
 		//Load Data
 		fin >> eID >> mat;
-		for (int i = 0; i < numNodes; i++)
+
+		if (i != (eID - 1))
 		{
-			int temp;
-			fin >> temp;
-
-			d_nodes[temp] = new defiNode(temp);
-
-			enodes[i] = d_nodes[temp];
+			ferr << "ERROR::ELEMENT_CLASS::ELEMENT_NUMBERING" << endl;
+			exit(0);
+		}
+		if (mat > d_numMats)
+		{
+			ferr << "ERROR::MATERIAL_CLASS::MATERIAL_NUMBERING" << endl;
+			exit(0);
 		}
 
-		d_elems[i] = new defiElementQ8(eID, getMat(mat-1), numNodes, enodes);
-		//defiElementQ8(int id, defiMaterial* mat, int numNodes, defiNode* enodes[]) 
+		eMat = d_matprops[mat - 1];              //Link to the material
+
+		for (int j = 0; j < numNodes; j++)
+		{
+			int nodeID;
+			fin >> nodeID;                       //Obtain node id
+			eNodes[j] = d_nodes[nodeID - 1];     //Link to Nodes
+		}
+
+		d_elems[i] = new defiElementQ8(eID, eMat, numNodes, eNodes);      //Build q8 element from loaded info
 	}
 
 	//Fill Node Arrays
@@ -181,8 +197,7 @@ void dataFemModel::readData()
 
 		//Load Data
 		fin >> id >> x >> y;                     //Load info
-		d_nodes[id - 1] = new defiNode(id);      //Push ID
-		(*getNode(i)).setCoords(x,y);            //Push coordinates
+		d_nodes[i]->setCoords(x, y);             //Push coordinates
 	}
 
 	//Read Boundary Condition Info
@@ -194,6 +209,19 @@ void dataFemModel::readData()
 	d_essentialBCs = new defiEssentialBC*[d_numEssentialBCs];
 	d_pointBCs = new defiPointBC*[d_numPointBCs];
 	d_naturalBCs = new defiNaturalBC*[d_numNaturalBCs];
+
+	if ((d_essentialBCs == NULL) && (d_numEssentialBCs > 0)) {
+		ferr << "ERROR::ESSENTIALBC_CLASS::MEMORY_ALLOCATION" << endl;
+		exit(0);
+	}
+	if ((d_pointBCs == NULL) && (d_numPointBCs > 0)) {
+		ferr << "ERROR::POINTBC_CLASS::MEMORY_ALLOCATION" << endl;
+		exit(0);
+	}
+	if ((d_naturalBCs == NULL) && (d_numNaturalBCs > 0)) {
+		ferr << "ERROR::NATURALBC_CLASS::MEMORY_ALLOCATION" << endl;
+		exit(0);
+	}
 
 	//Fill EssentialBC Arrays
 	for (int i = 0; i < d_numEssentialBCs; i++)
@@ -211,7 +239,7 @@ void dataFemModel::readData()
 		if (temp[0] == 'U' && temp[1] == 'X') { dof = UX; }
 		else { dof = UY; }
 
-		d_essentialBCs[id_bc - 1] = new defiEssentialBC((getNode(id - 1)), dof, value);	
+		d_essentialBCs[id_bc - 1] = new defiEssentialBC(d_nodes[id-1], dof, value);
 	}
 
 	//Fill PointBC Arrays
@@ -230,7 +258,7 @@ void dataFemModel::readData()
 		if (temp[0] == 'F' && temp[1] == 'X') { dof = FX; }
 		else { dof = FY; }
 
-		d_pointBCs[id_bc - 1] =	new defiPointBC((getNode(id - 1)), dof, value);
+		d_pointBCs[id_bc - 1] = new defiPointBC(d_nodes[id-1], dof, value);
 	}
 
 	//Fill NaturalBC Arrays
@@ -243,7 +271,7 @@ void dataFemModel::readData()
 		//Load Data
 		fin >> id_bc >> id1 >> id2 >> id3 >> value;
 
-		d_naturalBCs[id_bc - 1] = new defiNaturalBC(getNode(id1 - 1), getNode(id2 - 1), getNode(id3 - 1), value);
+		d_naturalBCs[id_bc - 1] = new defiNaturalBC(d_nodes[id1-1], d_nodes[id2 - 1], d_nodes[id3 - 1], value);
 	}
 
 	//Set Number of System Equations
@@ -279,7 +307,7 @@ void dataFemModel::writeData()
 	fout << "***Material Data***" << endl;
 	for (int i = 0; i < d_numMats; i++)
 	{
-		(*getMat(i)).printData();                //Obtain Material Object
+		d_matprops[i]->printData();
 	}
 
 	//Print Element Data
@@ -287,7 +315,7 @@ void dataFemModel::writeData()
 	fout << "ElemID  " << "Material      " << "Node Connectivity" << endl;
 	for (int i = 0; i < d_numElems; i++)
 	{
-		(*getElem(i)).printData();               //Obtain Element Object
+		d_elems[i]->printData();
 	}
 
 	//Print Node Data
@@ -295,7 +323,7 @@ void dataFemModel::writeData()
 	fout << "***Nodal Data***" << endl;
 	for (int i = 0; i < d_numNodes; i++)
 	{
-		(*getNode(i)).printData();               //Obtain Node Object
+		d_nodes[i]->printData();
 	}
 
 	//Print EssentialBC Data

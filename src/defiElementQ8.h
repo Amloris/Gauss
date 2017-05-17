@@ -11,8 +11,8 @@ needed when postprocessing.
 #ifndef defiElementQ8_h
 #define defiElementQ8_h
 
-#include "defiNode.h"
-#include "defiMaterial.h"
+//#include "defiNode.h"
+//#include "defiMaterial.h"
 #include "calcStress2D.h"
 
 #include "defiGauss3Pt.h"
@@ -76,11 +76,17 @@ defiElementQ8::defiElementQ8(int id, defiMaterial* mat, int numNodes, defiNode* 
 	d_id = id;
 	d_material = mat;
 	d_numNodes = numNodes;
-	d_nodes = enodes;
+
+	d_nodes = new defiNode*[numNodes];
+	for (int i = 0; i < numNodes; i++)
+	{
+		d_nodes[i] = enodes[i];                  //Link to the 8 global nodes
+	}
 }
 
-int defiElementQ8::getID() const       { return d_id; }
-int defiElementQ8::getNumNodes() const { return d_numNodes; }
+int defiElementQ8::getID() const       { return d_id; }              //return element id
+int defiElementQ8::getNumNodes() const { return d_numNodes; }        //return number of nodes
+int defiElementQ8::getNumDofs() const  { return d_numNodes * 2; }    //return degrees of freedom
 
 defiMaterial* defiElementQ8::getMaterial() const
 {
@@ -98,28 +104,13 @@ void defiElementQ8::getNodes(defiNode* nodes[]) const
 }
 
 void defiElementQ8::printData() const
-{
-	//Get Data
-	int id, mat_id;
-	id = getID();                           //Element ID
-	mat_id = (*getMaterial()).getID();      //Material ID
+{	//print:  elemID    matID     NodeConnectivityData
 
-	int size = getNumNodes();
-	defiNode** nodes;
-	nodes = new defiNode*[size];
-	getNodes(nodes);                        //Storing the node ID addresses
-
-	//Print to File
-	fout << "   " << id << "       " << mat_id << "      ";
-	for (int i = 0; i < size; i++)
+	fout << "   " << d_id << "       " << d_material->getID() << "      ";
+	for (int i = 0; i < d_numNodes; i++)
 	{
-		int node_num;
-		defiNode* node_id;
-		node_id = nodes[i];
-		node_num = (*node_id).getID();      //Obtain Node ID from object address.
-		fout << "    " << node_num;
+		fout << "    " << d_nodes[i]->getID();
 	}
-
 	fout << endl;
 }
 
