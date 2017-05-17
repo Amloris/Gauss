@@ -331,7 +331,7 @@ void dataFemModel::writeData()
 	fout << "***Essential BC Data***" << endl;
 	for (int i = 0; i < d_numEssentialBCs; i++)
 	{
-		(*getEssentialBC(i)).printData();
+		d_essentialBCs[i]->printData();
 	}
 
 	//Print PointBC Data
@@ -339,7 +339,7 @@ void dataFemModel::writeData()
 	fout << "***Point BC Data***" << endl;
 	for (int i = 0; i < d_numPointBCs; i++)
 	{
-		(*getPointBC(i)).printData();
+		d_pointBCs[i]->printData();
 	}
 
 	//Print NaturalBC Data
@@ -347,7 +347,7 @@ void dataFemModel::writeData()
 	fout << "***Natural BC Data***" << endl;
 	for (int i = 0; i < d_numNaturalBCs; i++)
 	{
-		(*getNaturalBC(i)).printData();
+		d_naturalBCs[i]->printData();
 	}
 }
 
