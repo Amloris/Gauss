@@ -16,8 +16,6 @@ return d_dof[UX];
 #include "defiDof.h"
 #include "calcStress2D.h"
 
-#include "globAccessItems.h"
-
 using namespace std;
 
 class defiNode
