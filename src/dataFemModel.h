@@ -115,19 +115,19 @@ void dataFemModel::readData()
 	d_nodes = new defiNode*[d_numNodes];         //Node Storage
 
 	if (d_matprops == NULL) {
-		cout << "ERROR::MATERIAL_CLASS::MEMORY_ALLOCATION" << endl;
+		ferr<< "ERROR::MATERIAL_CLASS::MEMORY_ALLOCATION" << endl;
 		exit(0);
 	}
 	if (d_elems == NULL) {
-		cout << "ERROR::ELEMENT_CLASS::MEMORY_ALLOCATION" << endl;
+		ferr << "ERROR::ELEMENT_CLASS::MEMORY_ALLOCATION" << endl;
 		exit(0);
 	}
 	if (d_nodes == NULL) {
-		cout << "ERROR::NODE_CLASS::MEMORY_ALLOCATION" << endl;
+		ferr << "ERROR::NODE_CLASS::MEMORY_ALLOCATION" << endl;
 		exit(0);
 	}
 	if (d_probType == NULL) {
-		cout << "ERROR::PROBLEM_TYPE::DEFINITION" << endl;
+		ferr << "ERROR::PROBLEM_TYPE::DEFINITION" << endl;
 		exit(0);
 	}
 
