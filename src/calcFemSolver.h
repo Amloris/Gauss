@@ -115,6 +115,7 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 		fout << endl << endl;
 	}
 
+	cout << "Testing Branch" << endl;
 }
 
 #endif
