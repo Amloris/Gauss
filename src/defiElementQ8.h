@@ -11,8 +11,6 @@ needed when postprocessing.
 #ifndef defiElementQ8_h
 #define defiElementQ8_h
 
-//#include "defiNode.h"
-//#include "defiMaterial.h"
 #include "calcStress2D.h"
 
 #include "defiGauss3Pt.h"
