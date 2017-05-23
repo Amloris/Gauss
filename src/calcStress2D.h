@@ -9,8 +9,7 @@ sigma_yy, sigma_xy, and sigma_zz components.
 class calcStress2D {
 private:
 	// stress data
-	double m_sigxx, m_sigyy, m_sigzz, m_sigxy;	//stress components
-												//note that four components are stored
+	double m_sigxx, m_sigyy, m_sigzz, m_sigxy;	 //stress components, note that four components are stored
 
 public:
 	// constructors
@@ -19,19 +18,19 @@ public:
 	// destructor
 	~calcStress2D();
 	//functions
-	void setSigXX(double xx);	//	set m_sigxx = xx;
-	void setSigYY(double yy);	//	set m_sigyy = yy;
-	void setSigZZ(double zz);	//	set m_sigzz = zz;
-	void setSigXY(double xy);	//	set m_sigxy = xy;
-	void addSigXX(double xx);	//	add xx to m_sigxx;
-	void addSigYY(double yy);	//	add yy to m_sigyy;
-	void addSigZZ(double zz);	//	add zz to m_sigzz;
-	void addSigXY(double xy);	//	add xy to m_sigxy;
-	double getSigXX() const;	//	return m_sigxx;
-	double getSigYY() const;	//	return m_sigyy;
-	double getSigZZ() const;	//	return m_sigzz;
-	double getSigXY() const;	//	return m_sigxy;
-	void zero();		//initialize all components to zero
+	void setSigXX(double xx);	  //Set m_sigxx = xx;
+	void setSigYY(double yy);	  //Set m_sigyy = yy;
+	void setSigZZ(double zz);	  //Set m_sigzz = zz;
+	void setSigXY(double xy);	  //set m_sigxy = xy;
+	void addSigXX(double xx);	  //Add xx to m_sigxx;
+	void addSigYY(double yy);	  //Add yy to m_sigyy;
+	void addSigZZ(double zz);	  //Add zz to m_sigzz;
+	void addSigXY(double xy);	  //Add xy to m_sigxy;
+	double getSigXX() const;	  //Return m_sigxx;
+	double getSigYY() const;	  //Return m_sigyy;
+	double getSigZZ() const;	  //Return m_sigzz;
+	double getSigXY() const;	  //Return m_sigxy;
+	void zero();		          //Initialize all components to zero
 };
 
 #endif

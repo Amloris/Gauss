@@ -19,10 +19,10 @@ using namespace std;
 class calcFemSolver
 {
 private:
-	defiMatrix *m_k;	     //ptr to a defiMatrix object. Use dynamic allocation to form a size of m_neq by m_neq global stiffness matrix    //e.g m_k = new defiMatrix(m_neq, m_neq); 
-	defiVector *m_f;	     //ptr to a defiVector object. It contains the right hand side vector. Use dynamic allocation to form a size of m_neq right hand side vector  //e.g. m_f = new defiVector(m_neq);
-	defiVector *m_displ;	 //ptr to a defiVector object. It contains the solution (solved displacement vector)
-	int m_neq;		//total number of equations (=total number of nodes * 2 - total number of essential BCs).  Note that the index for eqns runs from 0 to m_neq-1
+	defiMatrix *m_k;	     //Ptr to a defiMatrix object. Use dynamic allocation to form a size of m_neq by m_neq global stiffness matrix    //e.g m_k = new defiMatrix(m_neq, m_neq); 
+	defiVector *m_f;	     //Ptr to a defiVector object. It contains the right hand side vector. Use dynamic allocation to form a size of m_neq right hand side vector  //e.g. m_f = new defiVector(m_neq);
+	defiVector *m_displ;	 //Ptr to a defiVector object. It contains the solution (solved displacement vector)
+	int m_neq;		         //Total number of equations (=total number of nodes * 2 - total number of essential BCs).  Note that the index for eqns runs from 0 to m_neq-1
 
 	int setEquationNumbers(dataFemModel &dat);
 	/*this calculates the total number of equations
@@ -70,32 +70,9 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 	//		stiffness matrrix can be calculated.  It will later be streamlined
 	//		by using more functions and classes.
 
-	//Get the Nodal Vectors
-	int size = (*dat.getElem(0)).getNumNodes();
-	defiVector x(size), y(size), id(size);
-
-	defiNode** nodes;
-	nodes = new defiNode*[size];
-	(*dat.getElem(0)).getNodes(nodes);
-
-	for (int i = 0; i < size; i++)
-	{
-		int node_num;
-		double temp_x, temp_y;
-		defiNode* node_id;
-		node_id = nodes[i];
-		node_num = (*node_id).getID();                     //Obtain Node ID from object address.
-		temp_x = (*dat.getNode(node_num - 1)).getX();      //Get Node x coord
-		temp_y = (*dat.getNode(node_num - 1)).getY();      //Get Node y coord
-
-		id.setCoeff(i, node_num);
-		x.setCoeff(i, temp_x);
-		y.setCoeff(i, temp_y);
-	}
-
 	//Get the K Matrix
 	defiMatrix k(16, 16);                                  //Empty k matrix
-	(*dat.getElem(0)).getElementK(k, x, y);                //Compute k matrix
+	dat.getElem(0)->getElementK(k);                        //Compute k matrix
 
 	//Print the K Matrix                                   //We have to print it to the file here since my Matrix and Vector class cant print to file
 	int row, col;
@@ -115,7 +92,7 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 		fout << endl << endl;
 	}
 
-	cout << "Testing Branch" << endl;
+	
 
 }
 

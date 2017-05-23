@@ -22,11 +22,11 @@ enum DOFType { UX = 0, UY };
 class defiDof
 {
 private:
-	double d_value;	//the value of this degree of freedom (either UX or UY). For essential BC (dof is inactive), it is the prescribed displacement inputted by the user. For active dof, it stores the displacement value after the system equations are solved.
-	int d_eqn;		//the equation number of this dof. d_eqn has meaning only for active dof.
-	bool d_active;	//	d_active = true for active dof, = false for inactive dof
-					//never used copy constructor
-	defiDof(defiDof &dof);
+	double d_value;	              //The value of this degree of freedom (either UX or UY). For essential BC (dof is inactive), it is the prescribed displacement inputted by the user. For active dof, it stores the displacement value after the system equations are solved.
+	int d_eqn;		              //The equation number of this dof. d_eqn has meaning only for active dof.
+	bool d_active;	              //d_active = true for active dof, = false for inactive dof
+					
+	defiDof(defiDof &dof);        //Never used copy constructor
 
 public:
 	// Constructors
@@ -35,13 +35,13 @@ public:
 	~defiDof();
 
 	// Functions
-	void setNotActive();	//set d_active = false;
-	bool isActive() const;	//return d_active;
-	void setEqn(int count);	//for active dof, set d_eqn = count; for inactive dof, set d_eqn = -1 (or any negative integer)
-	int getEqn() const;		//return d_eqn;
-	void setValue(double value);	//set d_value = value;
-	double getValue() const;		//return d_value;
-	void print() const;	//print any useful info
+	void setNotActive();	      //Set d_active = false;
+	bool isActive() const;	      //Return d_active;
+	void setEqn(int count);	      //For active dof, set d_eqn = count; for inactive dof, set d_eqn = -1 (or any negative integer)
+	int getEqn() const;		      //Return d_eqn;
+	void setValue(double value);  //Set d_value = value;
+	double getValue() const;	  //Return d_value;
+	void print() const;	          //Print any useful info
 };
 
 
@@ -54,9 +54,5 @@ void defiDof::setValue(double value)
 {
 	d_value = value;
 }
-
-
-
-
 
 #endif

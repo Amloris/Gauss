@@ -5,20 +5,17 @@ This class implements an elastic material.
 #ifndef defiMaterial_h
 #define defiMaterial_h
 
-#include "defiMatrix.h"
-#include "globAccessItems.h"
-
 using namespace std;
 
 class defiMaterial
 {
 private:
-	int d_id;		//material ID
-	double d_e;		//Young's modulus
-	double d_nu;	//Poisson's ratio
-	double d_k;		//conductivity, irrelevant for us
-	double d_thick; //thickness
-	int d_probType; //problem type
+	int d_id;		              //Material ID
+	double d_e;		              //Young's modulus
+	double d_nu;	              //Poisson's ratio
+	double d_k;		              //Conductivity, irrelevant for us
+	double d_thick;               //Thickness
+	int d_probType;               //Problem type
 
 public:
 	// Constructors
@@ -28,20 +25,18 @@ public:
 	~defiMaterial();
 
 	//Functions
-	int getID() const;	          //return d_id
-	double getE();                //return d_e
-	double getNu();			      //return d_nu
-	double getK();				  //return d_k
-	double getThick();		      //return d_thick
-	int getprobType();		      //return d_probType
-	//void printData() const;		  //print useful info such as id, Young's modulus etc.
-	void printData();		  //print useful info such as id, Young's modulus etc.
+	int getID() const;	          //Return d_id
+	double getE();                //Return d_e
+	double getNu();			      //Return d_nu
+	double getK();				  //Return d_k
+	double getThick();		      //Return d_thick
+	int getprobType();		      //Return d_probType
+	void printData();		      //Print useful info such as id, Young's modulus etc.
 	void getDMatrixStress(defiMatrix &d);
-	/*this sets the value of material stiffness matrix in d (3 by 3) or (4 by 4)
-	For elastic plane stress or plane strain, the stresses are sigxx, sigyy, sigzz, sigxy,
-	while the D matrix is a 4x4 matrix. One can also calculate sigxx, sigyy, sigxy
-	using 3 by 3 D matrix, while calculate sigzz separately.
-	*/
+	     //this sets the value of material stiffness matrix in d (3 by 3) or (4 by 4)
+	     //For elastic plane stress or plane strain, the stresses are sigxx, sigyy, sigzz, sigxy,
+	     //while the D matrix is a 4x4 matrix. One can also calculate sigxx, sigyy, sigxy
+	     //using 3 by 3 D matrix, while calculate sigzz separately.
 };
 
 
@@ -62,8 +57,8 @@ defiMaterial::defiMaterial(int id, double e, double nu, double k, double thick, 
 void defiMaterial::printData()
 {
 	//Get Data
-	int id, probType;		  //material ID, problem type
-	double e, nu, k, thick;   //Young's modulus, Poissons Ratio, Cond., thickness
+	int id, probType;		      //Material ID, problem type
+	double e, nu, k, thick;       //Young's modulus, Poissons Ratio, Cond., thickness
 
 	id = getID();
 	e = getE();
@@ -103,6 +98,7 @@ void defiMaterial::getDMatrixStress(defiMatrix &d)
 	if (row != 3 && col != 3)
 	{
 		ferr << "ERROR::GET_D_MATRIX_STRESS::DIMENSIONS_INVALID" << endl;
+		exit(0);
 	}
 	else
 	{

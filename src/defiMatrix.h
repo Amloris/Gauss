@@ -25,13 +25,13 @@ public:
 	~defiMatrix();
 
 	// Functions
-	void zero();		                         //initialize all coefficients of the matrix to zero
-	int getNumRows() const;	                     //return m_nr;
-	int getNumCols() const;	                     //return m_nc;
-	void print() const;	                         //print useful info;
-	void setCoeff(int i, int j, double value);	 //set m_coeff[i][j] = value;
-	void addCoeff(int i, int j, double value);	 //add value to m_coeff[i][j]
-	double getCoeff(int i, int j);	             //return m_coeff[i][j];
+	void zero();		                         //Initialize all coefficients of the matrix to zero
+	int getNumRows() const;	                     //Return m_nr;
+	int getNumCols() const;	                     //Return m_nc;
+	void print() const;	                         //Print useful info;
+	void setCoeff(int i, int j, double value);	 //Set m_coeff[i][j] = value;
+	void addCoeff(int i, int j, double value);	 //Add value to m_coeff[i][j]
+	double getCoeff(int i, int j);	             //Return m_coeff[i][j];
 };
 
 //Functions

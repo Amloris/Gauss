@@ -21,12 +21,12 @@ using namespace std;
 class defiNode
 {
 private:
-	int d_id;	//node id
-	double d_x, d_y;	//coordinates x and y of this node
-	defiDof* d_dof[2];	//each node contains two dofs. Therefore two pointers are used
-	calcStress2D* d_nodeStress;	//store nodal stress (averaged over all neighboring element) [new addition] 
+	int d_id;	                       //Node id
+	double d_x, d_y;	               //Coordinates x and y of this node
+	defiDof* d_dof[2];	               //Each node contains two dofs. Therefore two pointers are used
+	calcStress2D* d_nodeStress;	       //Store nodal stress (averaged over all neighboring element) [new addition] 
 
-	defiNode();	// Never used constructors
+	defiNode();    	                   //Never used constructors
 	defiNode(const defiNode& node);
 
 public:
@@ -36,14 +36,14 @@ public:
 	~defiNode();
 
 	// Functions
-	int getID() const;					//return d_id;
-	void setCoords(double x, double y);	//set d_x = x, d_y = y;
-	double getX() const;				//return d_x;
-	double getY() const;				//return d_y;
-	defiDof* getDof(DOFType dof) const;	//return d_dof[dof];
-	calcStress2D* getStress() const;    //return d_nodeStress;
-	void printData() const;	            //print useful info
-	void printResults() const;	        //print useful results
+	int getID() const;					    //Return d_id;
+	void setCoords(double x, double y);	    //Set d_x = x, d_y = y;
+	double getX() const;				    //Return d_x;
+	double getY() const;				    //Return d_y;
+	defiDof* getDof(DOFType dof) const;	    //Return d_dof[dof];
+	calcStress2D* getStress() const;        //Return d_nodeStress;
+	void printData() const;	                //Print useful info
+	void printResults() const;	            //Print useful results
 };
 
 

@@ -9,10 +9,10 @@ using namespace std;
 
 class defiVector {
 private:
-	double *m_coeff;		// Coefficients of the vector
-	int m_nr;				// Number of rows
-							// never to be used copy constructor
-	defiVector(const defiVector &vector);
+	double *m_coeff;		                //Coefficients of the vector
+	int m_nr;				                //Number of rows
+							                
+	defiVector(const defiVector &vector);   //Never to be used copy constructor
 public:
 	// Constructors
 	defiVector();
@@ -21,12 +21,12 @@ public:
 	~defiVector();
 
 	// Functions
-	void zero();	                        //initialize all coefficient of the vector to be zero
-	int getNumRows() const;	                //return m_nr;
-	void setCoeff(int i, double value);	    //set m_coeff[i] = value;
-	void addCoeff(int i, double value);	    //add value to m_coeff[i];
-	double getCoeff(int i);	                //return m_coeff[i];
-	void print();	                        //print useful info
+	void zero();	                        //Initialize all coefficient of the vector to be zero
+	int getNumRows() const;	                //Return m_nr;
+	void setCoeff(int i, double value);	    //Set m_coeff[i] = value;
+	void addCoeff(int i, double value);	    //Add value to m_coeff[i];
+	double getCoeff(int i);	                //Return m_coeff[i];
+	void print();	                        //Print useful info
 };
 
 

@@ -32,10 +32,10 @@
 
 using namespace std;
 
-ifstream fin;		//define global fin here (allocate memory space)
-ofstream fout;		//define global fout here (allocate memory space)
-ofstream fplot;		//define global fplot here (allocate memory space)
-ofstream ferr;      //define global ferr here (allocate memory space)
+ifstream fin;		//Define global fin here (allocate memory space)
+ofstream fout;		//Define global fout here (allocate memory space)
+ofstream fplot;		//Define global fplot here (allocate memory space)
+ofstream ferr;      //Define global ferr here (allocate memory space)
 
 int main()
 {
@@ -72,7 +72,7 @@ int main()
 	//Close Files
 	globCloseFiles();
 
-	getchar();      //Hold for user (so we can read the console printouts)
+	getchar();          //Hold for user (so we can read the console printouts)
 
 	return 0;
 }

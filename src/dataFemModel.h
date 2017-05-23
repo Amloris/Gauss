@@ -35,21 +35,21 @@ using namespace std;
 class dataFemModel
 {
 private:
-	defiNode** d_nodes;		           //array of ptrs to node class (defiNode). The array size is equal to the total number of nodes in the FEM model.
-	defiMaterial** d_matprops;         //array of ptrs to material class (defiMaterial). The array size is equal to the total number of materials in the FEM model.
-	defiElementQ8** d_elems;		   //array of ptrs to element class (defiElementQ8). The array size is equal to the total number of elements in the FEM model.
-	defiEssentialBC** d_essentialBCs;  //array of ptrs to essential B.C. class (defiEssentialBC). The array size is equal to the total number of essential BCs in the FEM model.
-	defiPointBC** d_pointBCs;	       //array of prts to point force B.C. class (defiPointBC). The array size is equal to the total number of point force BCs in the FEM model.
-	defiNaturalBC** d_naturalBCs;	   //array of prts to natural B.C. class (defiNaturalBC). The array size is equal to the total number of natural BCs in the FEM model.
-	string d_title;		               //title of the fem analysis (from the input data file)
-	int d_numNodes = NULL;	           //total number of nodes of the fem model
-	int d_numElems = NULL;	           //total number of elements of the fem model
-	int d_numMats  = NULL;		       //total number of materials of the fem model
-	int d_probType = NULL;	           //problem type: =0 for axisymmetric (irrelevant in this course); =1 for plane stress; =2 for plane strain.
-	int d_numEssentialBCs = NULL;	   //number of essential B.C. of the fem model
-	int d_numPointBCs = NULL;		   //number of point force B.C.
-	int d_numNaturalBCs = NULL;		   //number of natural B.C
-	int d_neq;					       //total number of system equations (which is equal to number of nodes * 2 - number of essential BCs)
+	defiNode** d_nodes;		           //Array of ptrs to node class (defiNode). The array size is equal to the total number of nodes in the FEM model.
+	defiMaterial** d_matprops;         //Array of ptrs to material class (defiMaterial). The array size is equal to the total number of materials in the FEM model.
+	defiElementQ8** d_elems;		   //Array of ptrs to element class (defiElementQ8). The array size is equal to the total number of elements in the FEM model.
+	defiEssentialBC** d_essentialBCs;  //Array of ptrs to essential B.C. class (defiEssentialBC). The array size is equal to the total number of essential BCs in the FEM model.
+	defiPointBC** d_pointBCs;	       //Array of prts to point force B.C. class (defiPointBC). The array size is equal to the total number of point force BCs in the FEM model.
+	defiNaturalBC** d_naturalBCs;	   //Array of prts to natural B.C. class (defiNaturalBC). The array size is equal to the total number of natural BCs in the FEM model.
+	string d_title;		               //Title of the fem analysis (from the input data file)
+	int d_numNodes = NULL;	           //Total number of nodes of the fem model
+	int d_numElems = NULL;	           //Total number of elements of the fem model
+	int d_numMats  = NULL;		       //Total number of materials of the fem model
+	int d_probType = NULL;	           //Problem type: =0 for axisymmetric (irrelevant in this course); =1 for plane stress; =2 for plane strain.
+	int d_numEssentialBCs = NULL;	   //Number of essential B.C. of the fem model
+	int d_numPointBCs = NULL;		   //Number of point force B.C.
+	int d_numNaturalBCs = NULL;		   //Number of natural B.C
+	int d_neq;					       //Total number of system equations (which is equal to number of nodes * 2 - number of essential BCs)
 
 public:
 	// Constructors
@@ -58,25 +58,25 @@ public:
 	~dataFemModel();
 
 	// Functions
-	void readData();	               //read all input data from input file
-	void writeData();	               //write the output data, see "fem.out" of benchmark problems for format
-	int getNumNodes();				   //return d_numNodes
-	int getNumElems();				   //return d_numElems
-	int getNumMats();                  //return d_numMats
-	int getProbType();				   //return d_probType
-	int getNumEssentialBCs();		   //return d_numEssentialBCs
-	int getNumPointBCs();			   //return d_numPointBCs
-	int getNumNaturalBCs();			   //return d_numNaturalBCs
-	int getNumEq();                    //return d_neq
-	defiNode *getNode(int node);			     //return d_nodes[node] (node is node id)
-	defiElementQ8 *getElem(int elem);			 //return d_elems[elem] (elem is element id)
-	defiMaterial *getMat(int mat);               //return d_matprops[mat] (mat is material id)  Passed by pointer
-	defiEssentialBC *getEssentialBC(int ebc);  	 //return d_essentialBCs[ebc] (ebc is the id for the essential BC)
-	defiPointBC *getPointBC(int pbc);			 //return d_pointBCs[pbc] (pbc is the id for the point force boundary condition)
-	defiNaturalBC *getNaturalBC(int nbc);		 //return d_naturalBCs[nbc] (nbc is the id for the natural boundary condition)
-	void setNumEquation(int value);	   //set d_neq = value
-	void writeResults();	           //output results data, see "fem.out" of benchmark problems for format
-	void writePlotFile();	           //write the output data for contour plot program "ConPlot". see "fem.out" of benchmark problems for format.
+	void readData();	               //Read all input data from input file
+	void writeData();	               //Write the output data, see "fem.out" of benchmark problems for format
+	int getNumNodes();				   //Return d_numNodes
+	int getNumElems();				   //Return d_numElems
+	int getNumMats();                  //Return d_numMats
+	int getProbType();				   //Return d_probType
+	int getNumEssentialBCs();		   //Return d_numEssentialBCs
+	int getNumPointBCs();			   //Return d_numPointBCs
+	int getNumNaturalBCs();			   //Return d_numNaturalBCs
+	int getNumEq();                    //Return d_neq
+	defiNode *getNode(int node);			     //Return d_nodes[node] (node is node id)
+	defiElementQ8 *getElem(int elem);			 //Return d_elems[elem] (elem is element id)
+	defiMaterial *getMat(int mat);               //Return d_matprops[mat] (mat is material id)  Passed by pointer
+	defiEssentialBC *getEssentialBC(int ebc);  	 //Return d_essentialBCs[ebc] (ebc is the id for the essential BC)
+	defiPointBC *getPointBC(int pbc);			 //Return d_pointBCs[pbc] (pbc is the id for the point force boundary condition)
+	defiNaturalBC *getNaturalBC(int nbc);		 //Return d_naturalBCs[nbc] (nbc is the id for the natural boundary condition)
+	void setNumEquation(int value);	   //Set d_neq = value
+	void writeResults();	           //Output results data, see "fem.out" of benchmark problems for format
+	void writePlotFile();	           //Write the output data for contour plot program "ConPlot". see "fem.out" of benchmark problems for format.
 };
 
 
@@ -85,14 +85,14 @@ public:
 dataFemModel::dataFemModel()  { cout << "Creating dataFemModel Class Object" << endl; }
 dataFemModel::~dataFemModel() { cout << "Deleting dataFemModel Class Object" << endl; }
 
-int dataFemModel::getNumNodes()		   { return d_numNodes; }	      //return d_numNodes
-int dataFemModel::getNumElems()		   { return d_numElems; }	      //return d_numElems
-int dataFemModel::getNumMats()		   { return d_numMats;  }         //return d_numMats     
-int dataFemModel::getProbType()		   { return d_probType; }	      //return d_probType
-int dataFemModel::getNumEssentialBCs() { return d_numEssentialBCs; }  //return d_numEssentialBCs
-int dataFemModel::getNumPointBCs()     { return d_numPointBCs; }	  //return d_numPointBCs
-int dataFemModel::getNumNaturalBCs()   { return d_numNaturalBCs; }	  //return d_numNaturalBCs
-int dataFemModel::getNumEq()		   { return d_neq; }              //return d_neq
+int dataFemModel::getNumNodes()		   { return d_numNodes; }	      //Return d_numNodes
+int dataFemModel::getNumElems()		   { return d_numElems; }	      //Return d_numElems
+int dataFemModel::getNumMats()		   { return d_numMats;  }         //Return d_numMats     
+int dataFemModel::getProbType()		   { return d_probType; }	      //Return d_probType
+int dataFemModel::getNumEssentialBCs() { return d_numEssentialBCs; }  //Return d_numEssentialBCs
+int dataFemModel::getNumPointBCs()     { return d_numPointBCs; }	  //Return d_numPointBCs
+int dataFemModel::getNumNaturalBCs()   { return d_numNaturalBCs; }	  //Return d_numNaturalBCs
+int dataFemModel::getNumEq()		   { return d_neq; }              //Return d_neq
 
 void dataFemModel::readData()
 {   //Reads the model data and dynamically allocates memory for data storage
@@ -134,12 +134,12 @@ void dataFemModel::readData()
 	//Fill Material Arrays
 	for (int i = 0; i < d_numMats; i++)
 	{
-		int id;		    //material ID
+		int id;		    //Material ID
 		double e;		//Young's modulus
 		double nu;	    //Poisson's ratio
-		double k;		//conductivity, irrelevant for us
-		double thick;   //thickness
-		int probType;   //problemType
+		double k;		//Conductivity, irrelevant for us
+		double thick;   //Thickness
+		int probType;   //ProblemType
 
 		//Load Data
 		fin >> id >> e >> nu >> k >> thick >> probType;                    //Load info

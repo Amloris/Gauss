@@ -10,20 +10,18 @@ case of natural boundary condition data.
 #include "defiDof.h"
 #include "defiNode.h"
 
-#include "globAccessItems.h"
-
 using namespace std;
 
 enum PointBCType { FX = 0, FY };
 
-class defiPointBC	//this is the point force B.C. class
+class defiPointBC	                   //This is the point force B.C. class
 {
 private:
-	defiNode* d_node;		//ptrs to a node which has point force b.c.
-	PointBCType d_pbctype;	//type of point force, i.e. FX or FY
-	double d_value;			//value of the point force
+	defiNode* d_node;		           //Ptrs to a node which has point force b.c.
+	PointBCType d_pbctype;	           //Type of point force, i.e. FX or FY
+	double d_value;			           //Value of the point force
 
-	defiPointBC();	//never used constructors
+	defiPointBC();	                   //Never used constructors
 	defiPointBC(defiPointBC &ebc);
 
 public:
@@ -33,10 +31,10 @@ public:
 	~defiPointBC();
 
 	// Functions
-	defiNode* getNode() const;			// return d_node;
-	PointBCType getPbctype() const;		// return d_pbctype;
-	double getValue() const;			// return d_value;
-	void printData() const;	// print useful data
+	defiNode* getNode() const;		   //Return d_node;
+	PointBCType getPbctype() const;	   //Return d_pbctype;
+	double getValue() const;		   //Return d_value;
+	void printData() const;	           //Print useful data
 };
 
 
@@ -70,7 +68,7 @@ void defiPointBC::printData() const
 {
 	//Get Data
 	int id;                      //Node ID
-	id = (*getNode()).getID();   //Get Node ID
+	id = getNode()->getID();     //Get Node ID
 
 	//Print to File
 	fout << "    " << id << "    " << d_pbctype << "    " << d_value << endl;

@@ -81,13 +81,13 @@ header1.h) which is not allowed in c++.
 using namespace std;
 
 
-extern ifstream fin;		//declare global fin - as the file stream for input file
-extern ofstream fout;		//declare global fout - as the file stream for out file (result file)
-extern ofstream fplot;		//declare global fplot - as the file stream for con file (contour plot file)
-extern ofstream ferr;       //declare global ferr - as the file stream for error logging
+extern ifstream fin;		 //Declare global fin - as the file stream for input file
+extern ofstream fout;		 //Declare global fout - as the file stream for out file (result file)
+extern ofstream fplot;		 //Declare global fplot - as the file stream for con file (contour plot file)
+extern ofstream ferr;        //Declare global ferr - as the file stream for error logging
 
 void globOpenFiles()
-{	//open input file, out file (results file), con file (contour plot file), and errorlog.
+{	//Open input file, output file, contour plot file, and the errorlog.
 
 	//Open Files
 	fin.open("../data/sq.inp", ios::in);
@@ -97,10 +97,10 @@ void globOpenFiles()
 
 	//Check for Successful Open
 	bool success = true;
-	if (!ferr.is_open())                    { cout << "ERROR::ERRORLOG::FAILURE_TO_OPEN" << endl; success = false; }
-	if (!fin.is_open() && ferr.is_open())   { ferr << "ERROR::FILE_INPUT::FAILURE_TO_OPEN" << endl; success = false; }
+	if (!ferr.is_open())                    { cout << "ERROR::ERRORLOG::FAILURE_TO_OPEN"    << endl; success = false; }
+	if (!fin.is_open() && ferr.is_open())   { ferr << "ERROR::FILE_INPUT::FAILURE_TO_OPEN"  << endl; success = false; }
 	if (!fout.is_open() && ferr.is_open())  { ferr << "ERROR::FILE_OUTPUT::FAILURE_TO_OPEN" << endl; success = false; }
-	if (!fplot.is_open() && ferr.is_open()) { ferr << "ERROR::FILE_PLOT::FAILURE_TO_OPEN" << endl; success = false; }
+	if (!fplot.is_open() && ferr.is_open()) { ferr << "ERROR::FILE_PLOT::FAILURE_TO_OPEN"   << endl; success = false; }
 	if (!success)                           { cout << "A problem was encountered opening one or more files" << endl; }
 };
 
@@ -125,7 +125,7 @@ void globGaussJordan(defiMatrix *a, defiVector *b, defiVector *x);
 // and [a] becomes the inverse of the original [a]
 
 void globTranspose(defiMatrix &a, defiMatrix &at)
-{	//transpose matrix a and store the result in matrix at
+{	//Transpose matrix a and store the result in matrix at
 
 	//Get Dimensions
 	int rows, cols;
@@ -143,7 +143,7 @@ void globTranspose(defiMatrix &a, defiMatrix &at)
 };
 
 void globMultiply(defiMatrix &a, defiMatrix &b, defiMatrix &c)
-{	//multiply matrix a with the matrix b, store the result in matrix c
+{	//Multiply matrix a with the matrix b, store the result in matrix c
 
 	//Get Dimensions
 	int a_rows, a_cols, b_rows, b_cols;
@@ -178,7 +178,7 @@ void globMultiply(defiMatrix &a, defiMatrix &b, defiMatrix &c)
 }
 
 void globMultiply(defiMatrix &a, defiVector &x, defiVector &y)
-{	//multiply matrix a with vector x, store the result in vector y
+{	//Multiply matrix a with vector x, store the result in vector y
 
 	//Get Dimensions
 	int a_rows, a_cols, x_len;

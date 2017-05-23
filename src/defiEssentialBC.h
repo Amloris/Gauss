@@ -5,21 +5,16 @@ This class stores the essential (prescribed displacement) boundary conditions.
 #ifndef defiEssentialBC_h
 #define defiEssentialBC_h
 
-#include "defiDof.h"
-#include "defiNode.h"
-
-#include "globAccessItems.h"
-
 using namespace std;
 
 class defiEssentialBC
 {
 private:
-	defiNode* d_node;	//	ptr to node (class defiNode) associated with an essential BC 
-	DOFType d_dof;		//	enum DOFType {UX=0, UY}; d_dof is either UX or UY
-	double d_value;		//	d_value = prescribed displ. value
+	defiNode* d_node;	          //Ptr to node (class defiNode) associated with an essential BC 
+	DOFType d_dof;		          //Enum DOFType {UX=0, UY}; d_dof is either UX or UY
+	double d_value;		          //d_value = prescribed displ. value
 
-	defiEssentialBC(); 	//never used constructors
+	defiEssentialBC(); 	          //Never used constructors
 	defiEssentialBC(defiEssentialBC &ebc);
 
 public:
@@ -29,10 +24,10 @@ public:
 	~defiEssentialBC();
 
 	// Functions
-	defiNode* getNode() const;	//	return d_node;
-	DOFType getDof() const;		//	return d_dof;
-	double getValue() const;	//	return d_value;
-	void printData() const;	//print useful info, e.g UY and UY
+	defiNode* getNode() const;	  //Return d_node;
+	DOFType getDof() const;		  //Return d_dof;
+	double getValue() const;	  //Return d_value;
+	void printData() const;	      //Print useful info, e.g UY and UY
 };
 
 
@@ -65,8 +60,8 @@ double defiEssentialBC::getValue() const
 void defiEssentialBC::printData() const
 {
 	//Get Data
-	int id;                      //Node ID
-	id = (*getNode()).getID();   //Get Node ID
+	int id;                       //Node ID
+	id = getNode()->getID();      //Get Node ID
 
 	//Print to File
 	fout << "    " << id << "    " << d_dof << "    " << d_value << endl;

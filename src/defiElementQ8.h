@@ -20,16 +20,16 @@ using namespace std;
 class defiElementQ8
 {
 private:
-	int d_id;					//element id
-	defiMaterial* d_material;	//pointer to the material class
-	int d_numNodes;				//total number of nodes of this element. For Q8, it is 8
-	defiNode** d_nodes;			//array of ptrs to the (eight) nodes in this element
+	int d_id;					                 //Element id
+	defiMaterial* d_material;	                 //Pointer to the material class
+	int d_numNodes;				                 //Total number of nodes of this element. For Q8, it is 8
+	defiNode** d_nodes;			                 //Array of ptrs to the (eight) nodes in this element
 
-	defiElementQ8(); 	//never to be used constructors
+	defiElementQ8(); 	                         //Never to be used constructors
 	defiElementQ8(const defiElementQ8 &elem);
 	//calcStress2D d_stressGPs[3][3];                                                     //Remember to re-enable this later!!!                                
-	//d_stress is an 3 by 3 matrix, each element is a calcStress2D class object. 
-	//d_stress stores the stresses at the 3 by 3 Gaussian points
+	     //d_stress is an 3 by 3 matrix, each element is a calcStress2D class object. 
+	     //d_stress stores the stresses at the 3 by 3 Gaussian points
 
 public:
 	// Constructors
@@ -38,30 +38,26 @@ public:
 	~defiElementQ8();
 
 	// Functions
-	int getID() const;						//return d_id;
-	int getNumNodes() const;				//return d_numNodes;
-	void getNodes(defiNode* nodes[]) const;	//assign each nodes[i] = d_nodes[i];
-	defiMaterial* getMaterial() const;		//return d_material;
-	void printData() const;		            //print any useful info
-	int getNumDofs() const;	                //for Q8 element, return 16; 
+	int getID() const;						     //Return d_id;
+	int getNumNodes() const;				     //Return d_numNodes;
+	void getNodes(defiNode* nodes[]) const;	     //Assign each nodes[i] = d_nodes[i];
+	defiMaterial* getMaterial() const;		     //Return d_material;
+	void printData() const;		                 //Print any useful info
+	int getNumDofs() const;	                     //For Q8 element, return 16; 
 	//void getElementK(defiMatrix &k, defiDof* dofs[]);
-	void getElementK(defiMatrix &k, defiVector &x, defiVector &y);   //My modification of the stiffness matrix function (it needs the position coordinates supplied externally)
-	//calculate the element stiffness matrix.
-	//here k stores the 16 by 16 stiffness matrix, dofs[16] hold equation number for each dof for assembling element k to the global matrix 
-	//calcFemSolver::assembleK will call this function to obtain k, and assemble the global matrix
+	void getElementK(defiMatrix &k);             //My modification of the stiffness matrix function (Dofs[] not implemented)
+	     //Calculates the element stiffness matrix.
+	     //It stores the 16 by 16 stiffness matrix in "k", dofs[16] hold equation number for each dof for assembling element k to the global matrix 
+	     //CalcFemSolver::assembleK will call this function to obtain k, and assemble the global matrix
 	void calcStressesGaussPtsCorners();
-	//this function calculates the stresses at Gaussian points, then constructs a bilinear best fit (a0+a1*zeta+a2*eta) to represent the stress distriution, then obtain the nodal stresses from the best fit
-	void getNodalData(calcStress2D stresses[]); //This function gets nodal stresses in a vector form
-	void printResults() const;	//print useful results such as stresses
+	     //Calculates the stresses at Gaussian points, then constructs a bilinear best fit (a0+a1*zeta+a2*eta) to represent the stress distriution, then obtain the nodal stresses from the best fit
+	void getNodalData(calcStress2D stresses[]);  //Gets nodal stresses in a vector form
+	void printResults() const;	                 //Print useful results such as stresses
 
 private:
-	void getBMatrix(double n, double z, defiVector &x, defiVector &y, defiMatrix &b, double &detj);
-	/*This function calculate the B matrix.
-	You need to evaluate the shape function derivatives with respect to r and s, the
-	natural coordinates, and then global deriv of shape functions
-	Calculate the determinant of the Jacobian and evaluate the B matrix.  Note that we write fout the inverse of the
-	Jacobian matrix.
-	*/
+	void getBMatrix(double n, double z, defiMatrix &b, double &detj);
+	     //Calculates the B matrix.  It maps the arbitrary Q8 isoparametric element to unit normal space
+		 //by using shape functions evaluated at 2D gaussian points and constructs the B matrix.
 };
 
 
@@ -82,9 +78,9 @@ defiElementQ8::defiElementQ8(int id, defiMaterial* mat, int numNodes, defiNode* 
 	}
 }
 
-int defiElementQ8::getID() const       { return d_id; }              //return element id
-int defiElementQ8::getNumNodes() const { return d_numNodes; }        //return number of nodes
-int defiElementQ8::getNumDofs() const  { return d_numNodes * 2; }    //return degrees of freedom
+int defiElementQ8::getID() const       { return d_id; }              //Return element id
+int defiElementQ8::getNumNodes() const { return d_numNodes; }        //Return number of nodes
+int defiElementQ8::getNumDofs() const  { return d_numNodes * 2; }    //Return degrees of freedom
 
 defiMaterial* defiElementQ8::getMaterial() const
 {
@@ -92,7 +88,7 @@ defiMaterial* defiElementQ8::getMaterial() const
 }
 
 void defiElementQ8::getNodes(defiNode* nodes[]) const
-{	//assign each nodes[i] = d_nodes[i];
+{	//Assign each nodes[i] = d_nodes[i];
 
 	int size = getNumNodes();
 	for (int i = 0; i < size; i++)
@@ -102,7 +98,7 @@ void defiElementQ8::getNodes(defiNode* nodes[]) const
 }
 
 void defiElementQ8::printData() const
-{	//print:  elemID    matID     NodeConnectivityData
+{	//Print:  elemID    matID     NodeConnectivityData
 
 	fout << "   " << d_id << "       " << d_material->getID() << "      ";
 	for (int i = 0; i < d_numNodes; i++)
@@ -112,9 +108,8 @@ void defiElementQ8::printData() const
 	fout << endl;
 }
 
-void defiElementQ8::getBMatrix(double n, double z, defiVector &x, defiVector &y, defiMatrix &b, double &detj)
-{	//Modified from the original to include the nodal positions.
-	//x and y represent the global coordinates of the nodes.
+void defiElementQ8::getBMatrix(double n, double z, defiMatrix &b, double &detj)
+{	//Calculates the B matrix by mapping the arbitrary element to unit coordinate space
 	//eta=η=n, zeta=ζ=z.
 
 	//Data Holders
@@ -123,9 +118,8 @@ void defiElementQ8::getBMatrix(double n, double z, defiVector &x, defiVector &y,
 
 	defiVector zeta(num_nodes);       //partial w.r.t. zeta   //partial N_i w.r.t. partial zeta
 	defiVector eta(num_nodes);        //partial w.r.t. eta    //partial N_i w.r.t. partial eta
-
-	defiMatrix J(2, 2);               //Jacobian
-	defiMatrix Jinv(2, 2);            //Inverse Jacobian
+	defiVector dNdx(num_nodes);       //partial of N w.r.t partial of x
+	defiVector dNdy(num_nodes);       //partial of N w.r.t partial of y
 
 	//Compute Partials w.r.t. Inputs
 	double z1, z2, z3, z4, z5, z6, z7, z8;
@@ -185,91 +179,74 @@ void defiElementQ8::getBMatrix(double n, double z, defiVector &x, defiVector &y,
 	eta.setCoeff(6, n4);
 	eta.setCoeff(7, n8);
 
-	//zeta.print();
-	//eta.print();
-
 	//Solve for the Jacobian
-	double x_z = globMultiply(zeta, x);     //partial x w.r.t. partial zeta
-	double y_z = globMultiply(zeta, y);		//partial y w.r.t. partial zeta
-	double x_n = globMultiply(eta, x);      //partial x w.r.t. partial eta
-	double y_n = globMultiply(eta, y);      //partial y w.r.t. partial zeta
-
-	J.setCoeff(0, 0, x_z);
-	J.setCoeff(0, 1, y_z);
-	J.setCoeff(1, 0, x_n);
-	J.setCoeff(1, 1, y_n);
-
-	//J.print();
-
-	//Solve for Det of Jacobian                            //I should probably make a function to do this at some point
-	detj = x_z*y_n - y_z*x_n;
-
-	//Solve for Jacobain Inverse                           //I should probably make a function to do this at some point
-	Jinv.setCoeff(0, 0, y_n / detj);
-	Jinv.setCoeff(1, 1, x_z / detj);
-	Jinv.setCoeff(0, 1, -1.0*y_z / detj);
-	Jinv.setCoeff(1, 0, -1.0*x_n / detj);
-
-	//Jinv.print();
-
-	//Compute Components of B Matrix
-	defiMatrix Partials(2, 8);                             //Holder for the partial derivatives of the shape functions evaluated at zeta and eta
+	double dxdz, dxdn, dydz, dydn;
+	dxdz = 0.0; dxdn = 0.0; dydz = 0.0; dydn = 0.0;
 	for (int i = 0; i < num_nodes; i++)
 	{
-		Partials.setCoeff(0, i, zeta.getCoeff(i));         //Load zeta partial components
-		Partials.setCoeff(1, i, eta.getCoeff(i));          //Load eta partial components
+		dxdz += zeta.getCoeff(i) * d_nodes[i]->getX();
+		dxdn += eta.getCoeff(i) * d_nodes[i]->getX();
+		dydz += zeta.getCoeff(i) * d_nodes[i]->getY();
+		dydn += eta.getCoeff(i) * d_nodes[i]->getY();
 	}
-	defiMatrix B_Comp(2, 8);                               //Holder for the computed B matrix components
-	globMultiply(Jinv, Partials, B_Comp);                  //Computing the B matrix components
+
+	//Solve for the Determinant of the Jacobian
+	detj = dxdz*dydn - dxdn*dydz;
 	
-	//B_Comp.print();
+	if (fabs(detj) == 0.0)
+	{
+		ferr << "ERROR::BMATRIX_CALCULATION::ZERO_DETERMINANT" << endl;
+		exit(0);
+	}
+
+	//Compute Components of B Matrix
+	for (int i = 0; i < num_nodes; i++)
+	{
+		dNdx.setCoeff(i, (dydn*zeta.getCoeff(i) - dydz*eta.getCoeff(i)) / detj);
+		dNdy.setCoeff(i, (-dxdn*zeta.getCoeff(i) + dxdz*eta.getCoeff(i)) / detj);
+	}
 
 	//Construct the B Matrix
 	b.zero();                                              //Set default values to zero
-	for (int i = 0; i < num_nodes; i++)                   
+	for (int i = 0; i < num_nodes; i++)
 	{
 		int index = i * 2;                                 //The starting position in the b_matrix
-		double N_x, N_y;
-		N_x = B_Comp.getCoeff(0, i);
-		N_y = B_Comp.getCoeff(1, i);
 
 		//Load in Data
-		b.setCoeff(0, index, N_x);
-		b.setCoeff(2, index, N_y);
-		b.setCoeff(1, index + 1, N_y);
-		b.setCoeff(2, index + 1, N_x);
+		b.setCoeff(0, index, dNdx.getCoeff(i));
+		b.setCoeff(2, index, dNdy.getCoeff(i));
+		b.setCoeff(1, index + 1, dNdy.getCoeff(i));
+		b.setCoeff(2, index + 1, dNdx.getCoeff(i));
 	}
-
-	//b.print();
 }
 
-void defiElementQ8::getElementK(defiMatrix &k, defiVector &x, defiVector &y)
-{	//Called for each element. Take an initialized 16x16 matrix "k" as well as
-	//the node coordinate vectors.  Uses Gaussian integration to compute k.
+void defiElementQ8::getElementK(defiMatrix &k)
+{	//Computes the elemental stiffness matrix and stores it in 16x16 matrix "k".
+	//Uses 2D Gaussian integration to compute k.
 
 	//Initial Values
 	k.zero();                                              //Set stiffness matrix to zero
-	double thickness = (*d_material).getThick();           //Material thickness
+	double thickness = d_material->getThick();             //Material thickness
 	defiMatrix D(3, 3), B(3, 16), Bt(16, 3);               //Initialize Matrices
 	defiGauss3Pt g3;                                       //Initialize Gauss Object
 
 	//Obtain D Matrix
-	(*d_material).getDMatrixStress(D);                     //Only do this once since it is constant for one element
+	d_material->getDMatrixStress(D);                       //Only do this once since it is constant for one element
 
 	//2D Gaussian Integration                              //This should be replaced by a function in the Gauss3Pt class at some point
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < g3.getNumPts(); i++)
 	{
-		for (int j = 0; j < 3; j++)
+		for (int j = 0; j < g3.getNumPts(); j++)
 		{
 			//Setup Variables
-			double n = g3.getGaussPt(i);
-			double z = g3.getGaussPt(j);
+			double n = g3.getGaussPt(i);                   //Eta value
+			double z = g3.getGaussPt(j);                   //Zeta value
 			double weight_i = g3.getWeight(i);
 			double weight_j = g3.getWeight(j);
 			double detj = 0.0;
 
 			//Matrix Formations
-			getBMatrix(n, z, x, y, B, detj);               //Get B Matrix
+			getBMatrix(n, z, B, detj);                     //Get B Matrix
 			defiMatrix k_temp(16, 16), BtD(16, 3);         //Temporary Matrices
 			globTranspose(B, Bt);                          //Transpose of the B Matrix
 			globMultiply(Bt, D, BtD);                      //Multiply Bt and D together, store the result in BtD
@@ -283,6 +260,9 @@ void defiElementQ8::getElementK(defiMatrix &k, defiVector &x, defiVector &y)
 			globAdd(k, k_temp);
 		}
 	}
+
+
+
 }
 
 #endif
