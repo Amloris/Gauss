@@ -47,12 +47,50 @@ public:
 
 //Functions
 //-----------------------------------------------------------------------------
-defiDof::defiDof()  { std::cout << "Creating defiDof Class Object" << endl; }
+//defiDof::defiDof()  { std::cout << "Creating defiDof Class Object" << endl; }
 defiDof::~defiDof() { std::cout << "Deleting defiDof Class Object" << endl; }
+defiDof::defiDof()
+{
+	d_active = true;              //Assume the dof is active and unconstrained
+	d_eqn = -1;                   //Assign a eqn number placeholder
+	d_value = 0.0;                //Set computed displacement to zero
+}
+
+void defiDof::setNotActive()
+{
+	d_active = false;             //Deactivate the dof (dof of point is an essentialBC)
+}
+
+bool defiDof::isActive() const
+{
+	return d_active;              //Returns the status of the dof
+}
+
+void defiDof::setEqn(int count)
+{
+	if (d_active) 
+	{ 
+		d_eqn = count;            //Assigns eqn number if active
+	}   
+	else 
+	{ 
+		d_eqn = -1;               //Sets eqn number to negative if inactive
+	}
+}
+
+int defiDof::getEqn() const
+{
+	return d_eqn;                 //Return the equation number of the dof
+}
 
 void defiDof::setValue(double value)
 {
-	d_value = value;
+	d_value = value;              //Sets the dispacment value
+}
+
+double defiDof::getValue() const
+{
+	return d_value;               //Returns the displacement value
 }
 
 #endif
