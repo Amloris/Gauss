@@ -49,10 +49,14 @@ public:
 
 //Functions
 //-----------------------------------------------------------------------------
+defiNode::defiNode() { }
 defiNode::~defiNode() { std::cout << "Deleting defiNode Class Object" << endl; }
 defiNode::defiNode(int id)
 {
 	d_id = id;
+	d_dof[0] = new defiDof();
+	d_dof[1] = new defiDof();
+	d_nodeStress = new calcStress2D;
 }
 
 int defiNode::getID() const
@@ -74,6 +78,16 @@ double defiNode::getX() const
 double defiNode::getY() const
 {
 	return d_y;
+}
+
+defiDof* defiNode::getDof(DOFType dof) const
+{
+	return d_dof[dof];                            //Return dof of interest
+}
+
+calcStress2D* defiNode::getStress() const
+{
+	return d_nodeStress;                          //Return nodal stress information
 }
 
 void defiNode::printData() const

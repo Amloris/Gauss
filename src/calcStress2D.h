@@ -33,4 +33,11 @@ public:
 	void zero();		          //Initialize all components to zero
 };
 
+
+//Functions
+//-----------------------------------------------------------------------------
+calcStress2D::calcStress2D()  { /*std::cout << "Creating calcStress2D Class Object" << endl;*/ }
+calcStress2D::~calcStress2D() { std::cout << "Deleting calcStress2D Class Object" << endl; }
+
+
 #endif
