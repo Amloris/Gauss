@@ -93,4 +93,7 @@ double defiDof::getValue() const
 	return d_value;               //Returns the displacement value
 }
 
+void defiDof::print() const       //Print useful info
+{}
+
 #endif
