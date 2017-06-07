@@ -27,7 +27,7 @@ private:
 
 	defiElementQ8(); 	                         //Never to be used constructors
 	defiElementQ8(const defiElementQ8 &elem);
-	//calcStress2D d_stressGPs[3][3];                                                     //Remember to re-enable this later!!!                                
+	calcStress2D d_stressGPs[3][3];                                            
 	     //d_stress is an 3 by 3 matrix, each element is a calcStress2D class object. 
 	     //d_stress stores the stresses at the 3 by 3 Gaussian points
 
@@ -264,5 +264,19 @@ void defiElementQ8::getElementK(defiMatrix &k)
 
 
 }
+
+void defiElementQ8::getNodalData(calcStress2D stresses[])
+{ //Gets nodal stresses in a vector form
+	int p = -1;
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			p += 1;
+			stresses[p] = d_stressGPs[i][j];              //Retrieve gaussian stresses and store in vector form
+		}
+	}
+}
+
 
 #endif
