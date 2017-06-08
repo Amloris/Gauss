@@ -45,7 +45,7 @@ public:
 	void printData() const;		                 //Print any useful info
 	int getNumDofs() const;	                     //For Q8 element, return 16; 
 	//void getElementK(defiMatrix &k, defiDof* dofs[]);
-	void getElementK(defiMatrix &k);             //My modification of the stiffness matrix function (Dofs[] not implemented)
+	void getElementK(defiMatrix &k, defiDof* dofs[]);             //My modification of the stiffness matrix function (Dofs[] not implemented)
 	     //Calculates the element stiffness matrix.
 	     //It stores the 16 by 16 stiffness matrix in "k", dofs[16] hold equation number for each dof for assembling element k to the global matrix 
 	     //CalcFemSolver::assembleK will call this function to obtain k, and assemble the global matrix
@@ -220,7 +220,7 @@ void defiElementQ8::getBMatrix(double n, double z, defiMatrix &b, double &detj)
 	}
 }
 
-void defiElementQ8::getElementK(defiMatrix &k)
+void defiElementQ8::getElementK(defiMatrix &k, defiDof* dofs[])
 {	//Computes the elemental stiffness matrix and stores it in 16x16 matrix "k".
 	//Uses 2D Gaussian integration to compute k.
 
@@ -261,8 +261,12 @@ void defiElementQ8::getElementK(defiMatrix &k)
 		}
 	}
 
-
-
+	//Store Element Dofs
+	for (int i = 0; i < d_numNodes; i++)
+	{
+		dofs[2 * i] = d_nodes[i]->getDof(UX);
+		dofs[2 * i + 1] = d_nodes[i]->getDof(UY);
+	}
 }
 
 void defiElementQ8::getNodalData(calcStress2D stresses[])
