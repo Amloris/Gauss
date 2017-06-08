@@ -119,10 +119,122 @@ void globCloseFiles()
 };
 
 
-void globGaussJordan(defiMatrix *a, defiVector *b, defiVector *x);
-// global function. it solves [a]{x}={b} using Gauss-Jordan elimination. 
-// When it is done, {x} is the solution (=[a]^(-1) {b})
-// and [a] becomes the inverse of the original [a]
+void globGaussJordan(defiMatrix *a, defiVector *b, defiVector *x)
+{	// global function. it solves [a]{x}={b} using Gauss-Jordan elimination. 
+	// When it is done, {x} is the solution (=[a]^(-1) {b})
+	// and [a] becomes the inverse of the original [a]
+
+	//#define SWAP(a,b) {temp=(a);(a)=(b);(b)=temp;}
+	int n, i, icol, irow, j, k, l, ll;
+	double big, dum, pivinv, hold;
+	double tmp1, tmp2;
+	/*	dynamially create 3 integer arrays. The integer arrays
+	p_ipiv, p_indxr, and p_indxc are used for bookkeeping on the pivoting.
+	*/
+	//n = m_nr;
+	n = a->getNumRows();
+	int* p_indxc = new int[n];
+	int* p_indxr = new int[n];
+	int* p_ipiv = new int[n];
+
+	for (j = 0; j < n; j++) p_ipiv[j] = 0;
+	for (i = 0; i < n; i++)
+	{ // This is the main loop over the columns to be reduced. 
+		big = 0.0;
+		for (j = 0; j < n; j++)
+		{// This is the outer loop of the search for a pivot element. 
+			if (p_ipiv[j] != 1)
+			{
+				for (k = 0; k < n; k++)
+				{
+					if (p_ipiv[k] == 0)
+					{
+						if (fabs(a->getCoeff(j, k)) >= big)
+						{
+							big = fabs(a->getCoeff(j, k));
+							irow = j;
+							icol = k;
+						}
+					}
+					else if (p_ipiv[k] > 1)
+					{
+						cout << "gaussj: Singular Matrix-1" << endl;
+					}
+				}
+			}
+		}
+		++(p_ipiv[icol]);
+
+		/* We now have the pivot element, so we interchange rows, if needed, to put the pivot
+		element on the diagonal. The columns are not physically interchanged, only relabeled:
+		p_indxc[i], the column of the ith pivot element, is the ith column that is reduced, while
+		p_indxr[i] is the row in which that pivot element was originally located. If p_indxr[i]
+		6 = p_indxc[i] there is an implied column interchange. With this form of bookkeeping, the
+		solution b's will end up in the correct order, and the inverse matrix will be scrambled
+		by columns. */
+		if (irow != icol)
+		{
+			for (l = 0; l < n; l++)
+			{
+				tmp1 = a->getCoeff(irow, l);
+				tmp2 = a->getCoeff(icol, l);
+				a->setCoeff(irow, l, tmp2);
+				a->setCoeff(icol, l, tmp1);
+				//SWAP(a.getCoeff[irow][l], a.getCoeff[icol][l]);
+			}
+			hold = b->getCoeff(irow);
+			b->setCoeff(irow, b->getCoeff(icol));
+			b->setCoeff(icol, hold);
+		}
+
+		// We are now ready to divide the pivot row by the pivot element, located at irow and icol.
+		p_indxr[i] = irow;
+		p_indxc[i] = icol;
+		if (a->getCoeff(icol, icol) == 0.0)
+		{
+			cout << "gaussj: Singular Matrix-2" << endl;
+		}
+		pivinv = 1.0 / a->getCoeff(icol, icol);
+		a->setCoeff(icol, icol, 1.0);
+		for (l = 0; l < n; l++) { a->setCoeff(icol, l, a->getCoeff(icol, l)*pivinv); }
+		b->setCoeff(icol, b->getCoeff(icol)*pivinv);
+		for (ll = 0; ll < n; ll++) //Next, we reduce the rows... except for the pivot one, of course.
+		{
+			if (ll != icol)
+			{
+				dum = a->getCoeff(ll, icol);
+				a->setCoeff(ll, icol, 0.0);
+				for (l = 0; l < n; l++) a->setCoeff(ll, l, a->getCoeff(ll, l) - a->getCoeff(icol, l) * dum);
+				b->addCoeff(ll, -dum * b->getCoeff(icol));
+			}
+		}
+	}
+
+	/* This is the end of the main loop over columns of the reduction. It only remains to unscram-
+	ble the solution in view of the column interchanges. We do this by interchanging pairs of
+	columns in the reverse order that the permutation was built up. */
+	for (l = n - 1; l >= 0; l--)
+	{
+		if (p_indxr[l] != p_indxc[l])
+		{
+			for (k = 0; k < n; k++)
+			{
+				tmp1 = a->getCoeff(k, p_indxr[l]);
+				tmp2 = a->getCoeff(k, p_indxc[l]);
+				a->setCoeff(k, p_indxr[l], tmp2);
+				a->setCoeff(k, p_indxr[l], tmp1);
+				//				SWAP(m_coeff[k][p_indxr[l]], m_coeff[k][p_indxc[l]]);
+			}
+		}
+	} // And we are done.
+	delete[] p_indxc; //delete dynamically created arrays
+	delete[] p_indxr;
+	delete[] p_ipiv;
+
+	for (i = 0; i < n; i++) {	//copy the solution vector to x object
+		x->setCoeff(i, b->getCoeff(i));
+	}
+}
 
 void globTranspose(defiMatrix &a, defiMatrix &at)
 {	//Transpose matrix a and store the result in matrix at
