@@ -27,13 +27,13 @@ private:
 	int setEquationNumbers(dataFemModel &dat);
 	/*this calculates the total number of equations
 	which is equal to (number of nodes)*2 - (total number of inactive dofs) */
+	void assembleK(dataFemModel &dat, defiMatrix *k, defiVector *f);
+	/* assemble the global stiffness matrix. Only active dofs contribute to m_k
+	*/
 	void assembleRHS(dataFemModel &dat, defiVector *f);
 	/*calculate contributions to the global right hand side vector from
 	point force boundary condition and natural boundary condition.
 	Contribution from the essential boundary will be calculated after element K matrix is obtained.
-	*/
-	void assembleK(dataFemModel &dat, defiMatrix *k, defiVector *f);
-	/* assemble the global stiffness matrix. Only active dofs contribute to m_k
 	*/
 	void saveDislpacements(dataFemModel &dat, defiVector *sol);
 	/* save the solved displacements (m_displ) into the d_value of each active dof
@@ -98,6 +98,23 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 	m_f = new defiVector(m_neq);
 	m_displ = new defiVector(m_neq);
 
+	//Set Arrays to Zero
+	m_k->zero();
+	m_f->zero();
+	//m_displ->zero();
+
+	int eqnID;
+	eqnID = dat.getNode(1)->getDof(UX)->getEqn();
+	cout << eqnID << endl << endl << endl;
+
+	//Assemble Global Stiffness Matrix
+	assembleK(dat, m_k, m_f);
+
+	m_k->print();
+
+
+
+
 
 
 
@@ -111,6 +128,8 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 	//Testing (Element Stiffness Matrix for first element)
 	//-------------------------------------------------------------------------
 
+
+	/*
 	//Get the K Matrix
 	defiMatrix k(16, 16);                                  //Empty k matrix
 	dat.getElem(0)->getElementK(k);                        //Compute k matrix
@@ -132,10 +151,9 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 		}
 		fout << endl << endl;
 	}
+	*/
 
 }
-
-
 
 int calcFemSolver::setEquationNumbers(dataFemModel &dat)
 {	//Assigns an equation number to each dof that is active
@@ -156,6 +174,107 @@ int calcFemSolver::setEquationNumbers(dataFemModel &dat)
 		}
 	}
 	return EqnNum;
+}
+
+void calcFemSolver::assembleK(dataFemModel &dat, defiMatrix *k, defiVector *f)
+{	//Assembles the global stiffness matrix based on active Dofs.
+	//Computes forces from perscribed displacements (EssentialBCs).
+
+	//Construct Global Stiffness Matrix
+	for (int i = 0; i < dat.getNumElems(); i++)
+	{
+		//Setup Storage
+		int NumDofs;
+		NumDofs = dat.getElem(i)->getNumDofs();       //Number of dofs in element
+
+		defiMatrix k_elem(NumDofs, NumDofs);          //Element stiffness storage
+
+		defiDof** eDofs;                              //Element Dof storage
+		eDofs = new defiDof*[NumDofs];
+		for (int j = 0; j < NumDofs; j++)
+		{
+			eDofs[j] = new defiDof();
+		}
+
+		//Element Stiffness Matrix
+		dat.getElem(i)->getElementK(k_elem, eDofs);
+
+		//Print First Element Stiffness Matrix
+		if (i == 0)
+		{
+			int row, col;
+			row = k_elem.getNumRows();
+			col = k_elem.getNumCols();
+			fout << endl << "***Stiffness Matrix (Element 1)***" << endl;
+			for (int k = 0; k < row; k++)
+			{
+				fout << "Row " << k << endl;
+				fout.precision(4);
+				fout << scientific;
+				for (int j = 0; j < col; j++)
+				{
+					double temp = k_elem.getCoeff(k, j);
+					fout << temp << " ";
+				}
+				fout << endl << endl;
+			}
+		}
+
+		//Assemble into Global Stiffness Matrix
+		for (int g = 0; g < NumDofs; g++)
+		{
+			cout << eDofs[g]->getEqn() << endl;
+		}
+
+		for (int m = 0; m < NumDofs; m++)
+		{
+			for (int n = 0; n < NumDofs; n++)
+			{
+				if (eDofs[m]->isActive() && eDofs[n]->isActive())
+				{
+					//Get k_elem Coefficient Value
+					double temp_val;
+					temp_val = k_elem.getCoeff(m, n);
+
+					//Add it to Global Stiffness Matrix
+					int row, col;
+					row = eDofs[m]->getEqn();
+					col = eDofs[n]->getEqn();
+					k->addCoeff(row, col, temp_val);
+				}
+			}
+		}
+
+		//Compute Forces from Prescribed Displacments
+		defiVector u(NumDofs);                          //Prescribed displacment vector
+		u.zero();
+
+
+
+
+		//Assemble Global Load Vector (Perscribed Displacement)
+
+
+
+
+
+
+
+
+	}
+
+
+
+
+
+
+
+
+
+	//Forces From EssentialBCs (Perscribed Displacements)
+
+
+
 }
 
 #endif
