@@ -93,7 +93,7 @@ void defiMatrix::zero()
 	{
 		for (int j = 0; j < m_nc; j++)
 		{
-			m_coeff[i][j] = 0;
+			m_coeff[i][j] = 0.0;
 		}
 	}
 }

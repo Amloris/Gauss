@@ -71,7 +71,7 @@ void defiVector::zero()
 {
 	for (int i = 0; i < m_nr; i++)
 	{
-		m_coeff[i] = 0;
+		m_coeff[i] = 0.0;
 	}
 }
 
