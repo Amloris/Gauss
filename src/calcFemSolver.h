@@ -62,13 +62,54 @@ calcFemSolver::calcFemSolver()  { std::cout << "Creating calcFemSolver Class Obj
 calcFemSolver::~calcFemSolver() { std::cout << "Deleting calcFemSolver Class Object" << endl; }
 
 void calcFemSolver::solveFem(dataFemModel &dat)
-{	//This section will solve the finite element system
+{	//This section will solve the finite element system.
+	//It sets eqn numbers based on constraints, builds the global stiffness
+	//matrix and force vector, and solves for displacements using guassian elimination.
+	//Finally, it computes the nodal stresses.
+
+
+	//Get Number of System Equations
+	m_neq = dat.getNumEq();                      //Total number of equations
+	cout << "m_neq = " << m_neq << endl;
+
+	//Set Contrained Dofs to Inactive
+	defiEssentialBC* ebc;
+	defiNode* node;
+	enum DOFType dof;
+	for (int i = 0; i < dat.getNumEssentialBCs(); i++)
+	{
+		ebc = dat.getEssentialBC(i);
+		node = ebc->getNode();
+		dof = ebc->getDof();
+		node->getDof(dof)->setNotActive();                 //Set to inactive
+		node->getDof(dof)->setValue(ebc->getValue());      //Set perscribed displacment
+	}
+
+	//Assign Equation Numbers
+	int EqnNum = setEquationNumbers(dat);                  //Assign eqn numbers to active dofs
+	if (EqnNum != m_neq) 
+	{
+		ferr << "ERROR::CALCFEMSOLVER_CLASS::NUM_SYSTEM_EQNS" << endl;
+		exit(0);
+	}
+
+	//Dynamically Allocate Arrays (Global, Force, Displacement)
+	m_k = new defiMatrix(m_neq, m_neq);
+	m_f = new defiVector(m_neq);
+	m_displ = new defiVector(m_neq);
+
+
+
+
+
+
+
+
+
+
 
 	//Testing (Element Stiffness Matrix for first element)
 	//-------------------------------------------------------------------------
-	//Note: This section is a placeholder to demonstrate that the element 
-	//		stiffness matrrix can be calculated.  It will later be streamlined
-	//		by using more functions and classes.
 
 	//Get the K Matrix
 	defiMatrix k(16, 16);                                  //Empty k matrix
@@ -92,8 +133,29 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 		fout << endl << endl;
 	}
 
-	
+}
 
+
+
+int calcFemSolver::setEquationNumbers(dataFemModel &dat)
+{	//Assigns an equation number to each dof that is active
+	//Number of active dofs = (Num of nodes)*2 - (Num of inactive dofs)
+
+	int EqnNum = 0;
+	for (int i = 0; i < dat.getNumNodes(); i++)
+	{
+		if (dat.getNode(i)->getDof(UX)->isActive())
+		{
+			dat.getNode(i)->getDof(UX)->setEqn(EqnNum);
+			EqnNum += 1;
+		}
+		if (dat.getNode(i)->getDof(UY)->isActive())
+		{
+			dat.getNode(i)->getDof(UY)->setEqn(EqnNum);
+			EqnNum += 1;
+		}
+	}
+	return EqnNum;
 }
 
 #endif
