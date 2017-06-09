@@ -3,7 +3,7 @@
 +-------------------------------------------------------------------------+
 
 ***Problem Title***
-//single elem, 1x1, p.stress, lft edge UX=0, lower lft corner fixed, rght edge traction=10
+//single element, 1x1, p.stress, left side fixed, displacement on right side
 
 ***Problem Size***
 Nodes = 8  Elements = 1  Materials = 1  Problem Type = 1(Plane Stress)
@@ -35,11 +35,13 @@ ElemID  Material      Node Connectivity
     1    0    0
     5    0    0
     8    1    0
+    7    0    0.01
+    3    0    0.01
+    6    0    0.01
 
 ***Point BC Data***
 
 ***Natural BC Data***
-    7    3    6    10
 
 ***Stiffness Matrix (Element 1)***
 Row 0

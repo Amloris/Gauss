@@ -70,7 +70,6 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 
 	//Get Number of System Equations
 	m_neq = dat.getNumEq();                      //Total number of equations
-	cout << "m_neq = " << m_neq << endl;
 
 	//Set Contrained Dofs to Inactive
 	defiEssentialBC* ebc;
@@ -103,21 +102,31 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 	m_f->zero();
 	m_displ->zero();
 
-	m_k->print();
-	m_f->print();
-	m_displ->print();
-
+	/*
 	int eqnID;
 	eqnID = dat.getNode(1)->getDof(UX)->getEqn();
 	cout << eqnID << endl << endl << endl;
+	*/
 
 	//Assemble Global Stiffness Matrix
 	assembleK(dat, m_k, m_f);
 
+	cout << "Global Stiffness Matrix" << endl;
 	m_k->print();
 	cout << endl;
+	cout << "Load Vector from EssentialBCs" << endl;
 	m_f->print();
 	cout << endl;
+
+
+	//Solve for Displacements	
+	globGaussJordan(m_k, m_f, m_displ);
+	cout << "Displacement Vector (Active Constraints)" << endl;
+	m_displ->print();
+	cout << endl;
+
+
+
 
 
 	//Testing Gauss-Jordan Solver
@@ -143,11 +152,6 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 
 	globGaussJordan(&A, &F, &x);
 	x.print();
-
-	//Solve for Displacements	
-	globGaussJordan(m_k, m_f, m_displ);
-	m_displ->print();
-	
 }
 
 int calcFemSolver::setEquationNumbers(dataFemModel &dat)
@@ -248,8 +252,7 @@ void calcFemSolver::assembleK(dataFemModel &dat, defiMatrix *k, defiVector *f)
 		}
 		globMultiply(k_elem, -1.0);                        //Set element stiffness matrix to negative
 		globMultiply(k_elem, u, force_ebc);
-
-		force_ebc.print();
+		//force_ebc.print();                               //Print forces from EssentialBCs
 
 		//Assemble Global Load Vector (Perscribed Displacement)
 		for (int p = 0; p < NumDofs; p++)
@@ -261,7 +264,10 @@ void calcFemSolver::assembleK(dataFemModel &dat, defiMatrix *k, defiVector *f)
 				temp_val = force_ebc.getCoeff(p);
 
 				//Add it to Global Force Vector
-				f->addCoeff(p, temp_val);
+				int row;
+				row = eDofs[p]->getEqn();
+				f->addCoeff(row, temp_val);							
+				//f->addCoeff(p, temp_val);
 			}
 		}
 	}
