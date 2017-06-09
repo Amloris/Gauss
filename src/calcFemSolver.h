@@ -111,7 +111,7 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 	//Assemble Global Stiffness Matrix
 	assembleK(dat, m_k, m_f);
 
-	cout << "Global Stiffness Matrix" << endl;
+	cout << endl << "Global Stiffness Matrix" << endl;
 	m_k->print();
 	cout << endl;
 	cout << "Load Vector from EssentialBCs" << endl;
