@@ -60,9 +60,9 @@ void defiNaturalBC::printData() const
 	//Get Data
 	int id1, id2, id3;
 
-	id1 = (*d_node1).getID();
-	id2 = (*d_node2).getID();
-	id3 = (*d_node3).getID();
+	id1 = d_node1->getID();
+	id2 = d_node2->getID();
+	id3 = d_node3->getID();
 
 	//Print to File
 	fout << "    " << id1 << "    " << id2 << "    " << id3 << "    "  << d_value << endl;
