@@ -101,7 +101,11 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 	//Set Arrays to Zero
 	m_k->zero();
 	m_f->zero();
-	//m_displ->zero();
+	m_displ->zero();
+
+	m_k->print();
+	m_f->print();
+	m_displ->print();
 
 	int eqnID;
 	eqnID = dat.getNode(1)->getDof(UX)->getEqn();
@@ -111,48 +115,39 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 	assembleK(dat, m_k, m_f);
 
 	m_k->print();
+	cout << endl;
+	m_f->print();
+	cout << endl;
 
 
+	//Testing Gauss-Jordan Solver
+	cout << endl << "Testing Gauss-Jordan" << endl;
 
+	defiMatrix A(3, 3);
+	defiVector x(3);
+	defiVector F(3);
 
+	A.setCoeff(0, 0, 1.0);
+	A.setCoeff(0, 1, -2.0);
+	A.setCoeff(0, 2, 3.0);
+	A.setCoeff(1, 0, 2.0);
+	A.setCoeff(1, 1, 1.0);
+	A.setCoeff(1, 2, 1.0);
+	A.setCoeff(2, 0, -3.0);
+	A.setCoeff(2, 1, 2.0);
+	A.setCoeff(2, 2, -2.0);
 
+	F.setCoeff(0, 7.0);
+	F.setCoeff(1, 4.0);
+	F.setCoeff(2, -10.0);
 
+	globGaussJordan(&A, &F, &x);
+	x.print();
 
-
-
-
-
-
-
-
-	//Testing (Element Stiffness Matrix for first element)
-	//-------------------------------------------------------------------------
-
-
-	/*
-	//Get the K Matrix
-	defiMatrix k(16, 16);                                  //Empty k matrix
-	dat.getElem(0)->getElementK(k);                        //Compute k matrix
-
-	//Print the K Matrix                                   //We have to print it to the file here since my Matrix and Vector class cant print to file
-	int row, col;
-	row = k.getNumRows();
-	col = k.getNumCols();
-	fout << endl << "***Stiffness Matrix (Element 1)***" << endl;
-	for (int i = 0; i < row; i++)
-	{
-		fout << "Row " << i << endl ;
-		fout.precision(4);
-		fout << scientific;
-		for (int j = 0; j < col; j++)
-		{
-			double temp = k.getCoeff(i, j);
-			fout << temp << " ";
-		}
-		fout << endl << endl;
-	}
-	*/
-
+	//Solve for Displacements	
+	globGaussJordan(m_k, m_f, m_displ);
+	m_displ->print();
+	
 }
 
 int calcFemSolver::setEquationNumbers(dataFemModel &dat)
@@ -221,11 +216,6 @@ void calcFemSolver::assembleK(dataFemModel &dat, defiMatrix *k, defiVector *f)
 		}
 
 		//Assemble into Global Stiffness Matrix
-		for (int g = 0; g < NumDofs; g++)
-		{
-			cout << eDofs[g]->getEqn() << endl;
-		}
-
 		for (int m = 0; m < NumDofs; m++)
 		{
 			for (int n = 0; n < NumDofs; n++)
@@ -246,35 +236,35 @@ void calcFemSolver::assembleK(dataFemModel &dat, defiMatrix *k, defiVector *f)
 		}
 
 		//Compute Forces from Prescribed Displacments
-		defiVector u(NumDofs);                          //Prescribed displacment vector
+		defiVector u(NumDofs);                             //Prescribed displacment vector
+		defiVector force_ebc(NumDofs);                     //Force vector from EssentialBC
 		u.zero();
+		for (int q = 0; q < NumDofs; q++)
+		{
+			if (!eDofs[q]->isActive())                  
+			{
+				u.setCoeff(q, eDofs[q]->getValue());       //If constrained, load the prescibed displacement
+			}
+		}
+		globMultiply(k_elem, -1.0);                        //Set element stiffness matrix to negative
+		globMultiply(k_elem, u, force_ebc);
 
-
-
+		force_ebc.print();
 
 		//Assemble Global Load Vector (Perscribed Displacement)
+		for (int p = 0; p < NumDofs; p++)
+		{
+			if (eDofs[p]->isActive())
+			{
+				//Get force_ebc Coefficient Value
+				double temp_val;
+				temp_val = force_ebc.getCoeff(p);
 
-
-
-
-
-
-
-
+				//Add it to Global Force Vector
+				f->addCoeff(p, temp_val);
+			}
+		}
 	}
-
-
-
-
-
-
-
-
-
-	//Forces From EssentialBCs (Perscribed Displacements)
-
-
-
 }
 
 #endif
