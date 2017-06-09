@@ -386,5 +386,26 @@ void globAdd(defiMatrix &a, defiMatrix &b)
 	}
 }
 
+void globAdd(defiVector &x, defiVector &y)
+{	//Adds vector y to x, and returns x
+
+	//Get Dimensions
+	int x_rows, y_rows;
+	x_rows = x.getNumRows();
+	y_rows = y.getNumRows();
+
+	if (x_rows != y_rows)
+	{
+		ferr << "ERROR::VEC_ADD::DIMENSION_MISMATCH" << endl;
+		exit(0);
+	}
+
+	//Add y to x
+	for (int i = 0; i < x_rows; i++)
+	{
+		x.setCoeff(i, x.getCoeff(i) + y.getCoeff(i));
+	}
+}
+
 
 #endif
