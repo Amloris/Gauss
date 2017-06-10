@@ -143,7 +143,7 @@ void dataFemModel::readData()
 
 		//Load Data
 		fin >> id >> e >> nu >> k >> thick >> probType;                    //Load info
-		d_matprops[i] = new defiMaterial(id, e, nu, k, thick, probType);   //Push info
+		d_matprops[i] = new defiMaterial(id, e, nu, k, thick, d_probType);   //Push info
 		fin.ignore(numeric_limits<streamsize>::max(), '\n');               //Skip to end of line
 	}
 
@@ -349,6 +349,70 @@ void dataFemModel::writeData()
 	{
 		d_naturalBCs[i]->printData();
 	}
+}
+
+void dataFemModel::writeResults()
+{	//Records the processed results into the output file
+
+	//Print Number of Equations
+	fout << endl << endl << endl;
+	fout << " ******************** Results *************************************" << endl << endl;
+	fout << "     Total number of equations = " << d_neq << endl << endl;
+
+	//Print Element Data
+	fout << " ********************* Element Data *******************************" << endl << endl;
+	fout << "                  (Stresses at element center)" << endl;
+	fout << " Elem ID  Material   SigXX         SigYY         SigXY         SigZZ" << endl;
+
+	fout << endl << "          Work in progress" << endl << endl;
+
+	//Print Displacement Data
+	fout << " ********************** Nodal Data ********************************" << endl << endl;
+	fout << " Node ID        X              Y             UX            UY " << endl;
+	for (int i = 0; i < d_numNodes; i++)
+	{
+		int id;                        //Node id
+		double x, y, u, v;             //Nodal positions (x,y), Nodal displacements (u,v)
+
+		//Get Data
+		id = i+1;
+		x = d_nodes[i]->getX();
+		y = d_nodes[i]->getY();
+		u = d_nodes[i]->getDof(UX)->getValue();
+		v = d_nodes[i]->getDof(UY)->getValue();
+
+		//Export Data
+		fout << "    " << id;
+		fout.setf(ios::scientific);
+		fout.precision(4);
+		fout.width(17);
+		fout << x;
+		fout << "    " << y;
+		fout << "    " << u;
+		fout << "    " << v;
+		fout << endl;
+	}
+
+
+
+
+	//Print Nodal Stresses
+	fout << endl << " Node ID      SigXX           SigYY         SigXY         SigZZ" << endl;
+	fout << endl << "          Work in progress" << endl << endl;
+
+
+
+
+	//Termination Message
+	fout << endl << " ***** End of results ***** ";
+
+
+
+
+
+
+
+
 }
 
 void dataFemModel::setNumEquation(int value)	   //set d_neq = value
