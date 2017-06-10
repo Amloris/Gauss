@@ -118,37 +118,8 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 	//Save Displacements
 	saveDislpacements(dat, m_displ);
 
-
-
-
-
-
-
-	//Testing Gauss-Jordan Solver
-	/*
-	cout << endl << "Testing Gauss-Jordan" << endl;
-
-	defiMatrix A(3, 3);
-	defiVector x(3);
-	defiVector F(3);
-
-	A.setCoeff(0, 0, 1.0);
-	A.setCoeff(0, 1, -2.0);
-	A.setCoeff(0, 2, 3.0);
-	A.setCoeff(1, 0, 2.0);
-	A.setCoeff(1, 1, 1.0);
-	A.setCoeff(1, 2, 1.0);
-	A.setCoeff(2, 0, -3.0);
-	A.setCoeff(2, 1, 2.0);
-	A.setCoeff(2, 2, -2.0);
-
-	F.setCoeff(0, 7.0);
-	F.setCoeff(1, 4.0);
-	F.setCoeff(2, -10.0);
-
-	globGaussJordan(&A, &F, &x);
-	x.print();
-	*/
+	//Compute Nodal Stresses
+	calcNodalStresses(dat);
 }
 
 int calcFemSolver::setEquationNumbers(dataFemModel &dat)
@@ -413,5 +384,14 @@ void calcFemSolver::saveDislpacements(dataFemModel &dat, defiVector *sol)
 			dat.getNode(i)->getDof(UY)->setValue(val);
 		}
 	}
+}
+
+void calcFemSolver::calcNodalStresses(dataFemModel &dat)
+{	//1. calculate stresses at Gaussian points
+	//2. calculate stresses at each node by averaging all stress values 
+	//   at the node over connecting elements
+
+
+
 }
 #endif
