@@ -90,7 +90,7 @@ void globOpenFiles()
 {	//Open input file, output file, contour plot file, and the errorlog.
 
 	//Open Files
-	fin.open("../data/sq.inp", ios::in);
+	fin.open("../data/h60_pe_pt.inp", ios::in);
 	fout.open("../data/fem.out", ios::out | ios::trunc);
 	fplot.open("../data/conplot.out", ios::out | ios::trunc);
 	ferr.open("../data/Error_Log.txt", ios::out | ios::trunc);
