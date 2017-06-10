@@ -102,26 +102,16 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 	m_f->zero();
 	m_displ->zero();
 
-	/*
-	int eqnID;
-	eqnID = dat.getNode(1)->getDof(UX)->getEqn();
-	cout << eqnID << endl << endl << endl;
-	*/
-
 	//Assemble Global Stiffness Matrix
 	assembleK(dat, m_k, m_f);
 
-	cout << endl << "Global Stiffness Matrix" << endl;
-	m_k->print();
 	cout << endl;
 	cout << "Load Vector from EssentialBCs" << endl;
 	m_f->print();
 	cout << endl;
 
-
 	//Assemble RHS Force Vector
 	assembleRHS(dat, m_f);
-
 
 	//Solve for Displacements	
 	globGaussJordan(m_k, m_f, m_displ);
@@ -136,6 +126,7 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 
 
 	//Testing Gauss-Jordan Solver
+	/*
 	cout << endl << "Testing Gauss-Jordan" << endl;
 
 	defiMatrix A(3, 3);
@@ -158,6 +149,7 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 
 	globGaussJordan(&A, &F, &x);
 	x.print();
+	*/
 }
 
 int calcFemSolver::setEquationNumbers(dataFemModel &dat)
@@ -282,6 +274,34 @@ void calcFemSolver::assembleK(dataFemModel &dat, defiMatrix *k, defiVector *f)
 			}
 		}
 	}
+
+	//Print Portion of Global Stiffness Matrix
+	int row, col;
+	row = k->getNumRows();
+	col = k->getNumCols();
+	fout << endl << "***Global Stiffness Matrix (" << row << "x" << col << ")***   Max Displayed (20x20)" << endl;
+	
+	if (col > 20) { col = 20; }        //Set printout limits
+	if (row > 20) { row = 20; }        //Set printout limits
+
+	for (int k = 0; k < row; k++)
+	{
+		fout << "Row " << k << endl;
+		for (int j = 0; j < col; j++)
+		{
+			double temp = m_k->getCoeff(k, j);
+
+			fout.setf(ios::scientific);
+			fout.precision(4);
+			fout.width(13);
+			fout << temp;
+			if ((j + 1) % 6 == 0)
+			{
+				fout << endl;
+			}
+		}
+		fout << endl;
+	}
 }
 
 void calcFemSolver::assembleRHS(dataFemModel &dat, defiVector *f)
@@ -336,18 +356,33 @@ void calcFemSolver::assembleRHS(dataFemModel &dat, defiVector *f)
 	force_pbc.zero();
 	for (int i = 0; i < dat.getNumPointBCs(); i++)
 	{
-		dat.getPointBC(i)
+		//Get Direction
+		PointBCType dof;
+		dof = dat.getPointBC(i)->getPbctype();         //dof = 0 if FX, dof = 1 if FY
+		DOFType index;
+
+		if (dof == 0) { index = UX; }                  //Set to UX
+		else          { index = UY; }                  //Set to UY
+
+		//Assemble into Force_pbc
+		if (dat.getPointBC(i)->getNode()->getDof(index)->isActive())
+		{
+			//Get Point Force Value
+			double val;
+			val = dat.getPointBC(i)->getValue();
+
+			//Add it to Global Force Vector
+			int row;
+			row = dat.getPointBC(i)->getNode()->getDof(index)->getEqn();
+			force_pbc.addCoeff(row, val);
+		}
 	}
-
-
-
-
-
+	cout << endl << "Load Vector from PointBCs" << endl;
+	force_pbc.print();
 
 	//Assemble into Global Force Vector
 	globAdd(*f, force_nbc);
-
-
+	globAdd(*f, force_pbc);
 }
 
 #endif
