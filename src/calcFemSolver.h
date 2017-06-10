@@ -119,11 +119,17 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 	cout << endl;
 
 
+	//Assemble RHS Force Vector
+	assembleRHS(dat, m_f);
+
+
 	//Solve for Displacements	
 	globGaussJordan(m_k, m_f, m_displ);
-	cout << "Displacement Vector (Active Constraints)" << endl;
+	cout << endl << "Displacement Vector (Active Constraints)" << endl;
 	m_displ->print();
 	cout << endl;
+
+
 
 
 
@@ -208,12 +214,18 @@ void calcFemSolver::assembleK(dataFemModel &dat, defiMatrix *k, defiVector *f)
 			for (int k = 0; k < row; k++)
 			{
 				fout << "Row " << k << endl;
-				fout.precision(4);
-				fout << scientific;
 				for (int j = 0; j < col; j++)
 				{
 					double temp = k_elem.getCoeff(k, j);
-					fout << temp << " ";
+
+					fout.setf(ios::scientific);
+					fout.precision(4);
+					fout.width(13);
+					fout << temp;
+					if ((j + 1) % 6 == 0)
+					{
+						fout << endl;
+					}
 				}
 				fout << endl << endl;
 			}
@@ -267,10 +279,75 @@ void calcFemSolver::assembleK(dataFemModel &dat, defiMatrix *k, defiVector *f)
 				int row;
 				row = eDofs[p]->getEqn();
 				f->addCoeff(row, temp_val);							
-				//f->addCoeff(p, temp_val);
 			}
 		}
 	}
+}
+
+void calcFemSolver::assembleRHS(dataFemModel &dat, defiVector *f)
+{	//Computes equivalent nodal forces from NaturalBCs (tractions)
+	//and adds them to the Global force vector along with Point forces
+	//for all active dofs.
+
+	m_neq = dat.getNumEq();                             //Total number of equations
+	defiVector force_nbc(m_neq);                        //Holder for natural boundary condition forces
+	defiVector force_pbc(m_neq);                        //Holder for point boundary condition forces
+
+	//Compute Forces from NatualBCs
+	force_nbc.zero();
+	for (int i = 0; i < dat.getNumNaturalBCs(); i++)
+	{
+		//Setup Storage
+		int NumDofs = 6;                                //Number of dofs for a naturalBC with 3 nodes
+
+		defiVector f_nbc(NumDofs);                      //Storage for computed forces
+
+		defiDof** eDofs;                                //Node Dof storage
+		eDofs = new defiDof*[NumDofs];
+		for (int j = 0; j < NumDofs; j++)
+		{
+			eDofs[j] = new defiDof();
+		}
+
+		//Calculate Equivalent Forces
+		dat.getNaturalBC(i)->getNaturalBCF(f_nbc, eDofs);
+
+		//Assemble into Force_nbc
+		for (int j = 0; j < NumDofs; j++)
+		{
+			if (eDofs[j]->isActive())
+			{
+				//Get force_nbc Coefficient Value
+				double temp_val;
+				temp_val = f_nbc.getCoeff(j);
+
+				//Add it to Global Force Vector
+				int row;
+				row = eDofs[j]->getEqn();
+
+				force_nbc.addCoeff(row, temp_val);
+			}
+		}	
+	}
+	cout << "Load Vector from NaturalBCs" << endl;
+	force_nbc.print();
+
+	//Compute Forces from PointBCs
+	force_pbc.zero();
+	for (int i = 0; i < dat.getNumPointBCs(); i++)
+	{
+		dat.getPointBC(i)
+	}
+
+
+
+
+
+
+	//Assemble into Global Force Vector
+	globAdd(*f, force_nbc);
+
+
 }
 
 #endif
