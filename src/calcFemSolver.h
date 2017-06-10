@@ -25,21 +25,18 @@ private:
 	int m_neq;		         //Total number of equations (=total number of nodes * 2 - total number of essential BCs).  Note that the index for eqns runs from 0 to m_neq-1
 
 	int setEquationNumbers(dataFemModel &dat);
-	/*this calculates the total number of equations
-	which is equal to (number of nodes)*2 - (total number of inactive dofs) */
+		//this calculates the total number of equations
+		//which is equal to (number of nodes)*2 - (total number of inactive dofs)
 	void assembleK(dataFemModel &dat, defiMatrix *k, defiVector *f);
-	/* assemble the global stiffness matrix. Only active dofs contribute to m_k
-	*/
+		//assemble the global stiffness matrix. Only active dofs contribute to m_k
 	void assembleRHS(dataFemModel &dat, defiVector *f);
-	/*calculate contributions to the global right hand side vector from
-	point force boundary condition and natural boundary condition.
-	Contribution from the essential boundary will be calculated after element K matrix is obtained.
-	*/
+		//calculate contributions to the global right hand side vector from
+		//point force boundary condition and natural boundary condition.
+		//Contribution from the essential boundary will be calculated after element K matrix is obtained.
 	void saveDislpacements(dataFemModel &dat, defiVector *sol);
-	/* save the solved displacements (m_displ) into the d_value of each active dof
-	*/
+		//save the solved displacements (m_displ) into the d_value of each active dof
 	void calcNodalStresses(dataFemModel &dat);
-	//calculate nodal stresses
+		//calculate nodal stresses
 public:
 	// Constructors
 	calcFemSolver();
@@ -66,7 +63,6 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 	//It sets eqn numbers based on constraints, builds the global stiffness
 	//matrix and force vector, and solves for displacements using guassian elimination.
 	//Finally, it computes the nodal stresses.
-
 
 	//Get Number of System Equations
 	m_neq = dat.getNumEq();                      //Total number of equations
@@ -118,6 +114,9 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 	cout << endl << "Displacement Vector (Active Constraints)" << endl;
 	m_displ->print();
 	cout << endl;
+
+	//Save Displacements
+	saveDislpacements(dat, m_displ);
 
 
 
@@ -385,4 +384,34 @@ void calcFemSolver::assembleRHS(dataFemModel &dat, defiVector *f)
 	globAdd(*f, force_pbc);
 }
 
+void calcFemSolver::saveDislpacements(dataFemModel &dat, defiVector *sol)
+{	//Loads the solved displacements(m_displ) into the d_value of each active dof
+
+	//Save Displacements
+	for (int i = 0; i < dat.getNumNodes(); i++)
+	{
+		if (dat.getNode(i)->getDof(UX)->isActive())
+		{
+			//Get Eqaution Number
+			int eqnNum = dat.getNode(i)->getDof(UX)->getEqn();
+
+			//Get Value
+			double val = sol->getCoeff(eqnNum);
+
+			//Set Value
+			dat.getNode(i)->getDof(UX)->setValue(val);
+		}
+		if (dat.getNode(i)->getDof(UY)->isActive())
+		{
+			//Get Eqaution Number
+			int eqnNum = dat.getNode(i)->getDof(UY)->getEqn();
+
+			//Get Value
+			double val = sol->getCoeff(eqnNum);
+
+			//Set Value
+			dat.getNode(i)->getDof(UY)->setValue(val);
+		}
+	}
+}
 #endif
