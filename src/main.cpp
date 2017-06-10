@@ -55,12 +55,12 @@ int main()
 	//solve the fem model including displacements and stresses
 	o_sol.solveFem(o_modeldata);
 
+	//write results
+	o_modeldata.writeResults();
+
 	/*
 	//Work in Progress
 	//-------------------------------------------------------------------------
-
-	//write results
-	o_modeldata.writeResults();
 
 	//write plot data
 	o_modeldata.writePlotFile();
