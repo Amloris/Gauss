@@ -269,6 +269,162 @@ void defiElementQ8::getElementK(defiMatrix &k, defiDof* dofs[])
 	}
 }
 
+void defiElementQ8::calcStressesGaussPtsCorners()
+{	//1. Calculates the stresses at the 3x3 gaussian points
+	//2. Best fit the stresses at Gaussian points to the bilinear function,  sigma = a + b*ζ + c*η
+	//3. Calculate the stresses at the corners by using the bilinear function
+
+	//Initial Values
+	int NumDofs = getNumDofs();           //Number of displacements
+	defiMatrix D(3, 3);                   //Initialize matrices
+	defiVector u(NumDofs);                //Initialize displacement vector
+	defiGauss3Pt g3;                      //Initialize Gauss Object
+
+	//Get Displacement Vector
+	for (int i = 0; i < d_numNodes; i++)
+	{
+		u.setCoeff(2 * i, d_nodes[i]->getDof(UX)->getValue());       //x component of node displacement
+		u.setCoeff(2 * i + 1, d_nodes[i]->getDof(UY)->getValue());   //y component of node displacement
+	}
+	
+	//Get D Matrix
+	d_material->getDMatrixStress(D);
+
+	//Stresses at Gaussian Points
+	defiMatrix stress_x(3, 3), stress_y(3, 3), stress_xy(3, 3);
+	for (int i = 0; i < g3.getNumPts(); i++)
+	{
+		for (int j = 0; j < g3.getNumPts(); j++)
+		{
+			//Setup Variables
+			double detj = 0.0;                             //Dummy Value
+			double n = g3.getGaussPt(i);                   //Eta value
+			double z = g3.getGaussPt(j);                   //Zeta value
+
+			//Setup Matrices and Vectors
+			defiMatrix B(3, 16);                           //B Matrix
+			defiVector Strain(3), Stress(3);               //Stress and Strain
+
+			//Matrix Formations
+			getBMatrix(n, z, B, detj);                     //Get B Matrix
+			globMultiply(B, u, Strain);                    //Get strain at gauss point
+			globMultiply(D, Strain, Stress);               //Get stress at gauss point
+
+			cout << n << "  " << z << endl;
+			Stress.print();
+			cout << endl;
+
+			//Store Data
+			stress_x.setCoeff(i, j, Stress.getCoeff(0));
+			stress_y.setCoeff(i, j, Stress.getCoeff(1));
+			stress_xy.setCoeff(i, j, Stress.getCoeff(2));			
+		}
+	}
+
+	stress_x.print();
+	stress_y.print();
+	stress_xy.print();
+
+	/*
+
+
+	//Bilinear Curve Fits
+	double x_avg = 0.0;      //Sum for x stress average  
+	double y_avg = 0.0;      //Sum for y stress average
+	double xy_avg = 0.0;     //Sum for xy stress average
+
+	double z_avg = 0.0;      //Sum for zeta average
+	double n_avg = 0.0;      //Sum for eta average
+
+	double z_x = 0.0;        //Sum for zeta*(x stress)    
+	double z_y = 0.0;        //Sum for zeta*(y_stress)
+	double z_xy = 0.0;       //Sum for zeta*(xy_stress)
+	double n_x = 0.0;        //Sum for eta*(x stress) 
+	double n_y = 0.0;		 //Sum for eta*(y_stress)
+	double n_xy = 0.0;       //Sum for eta*(xy_stress)
+
+	double z2 = 0.0;         //Shape factor location sum (zeta^2)
+	double n2 = 0.0;         //Shape factor location sum (eta^2)
+	double zn = 0.0;         //Shape factor location sum (zeta*eta)
+	for (int i = 0; i < g3.getNumPts(); i++)
+	{
+		for (int j = 0; j < g3.getNumPts(); j++)
+		{
+			//Gauss Points
+			double n = g3.getGaussPt(i);                   //Eta value
+			double z = g3.getGaussPt(j);                   //Zeta value
+
+			//Computed Stresses
+			double x = stress_x.getCoeff(i, j);               //Stress x at gaussian point
+			double y = stress_y.getCoeff(i, j);               //Stress y at gaussian point
+			double xy = stress_xy.getCoeff(i, j);             //Stress xy at gaussian point
+
+			//Add to Sums
+			x_avg += x;
+			y_avg += y;
+			xy_avg += xy;
+			z_avg += z;
+			n_avg += n;
+
+			z2 += z*z;
+			n2 += n*n;
+			zn += z*n;
+
+			z_x += z*x;
+			n_x += n*x;
+			z_y += z*y;
+			n_y += n*y;
+			z_xy += z*xy;
+			n_xy += n*xy;
+		}
+	}
+	x_avg /= 9.0;            //Average x stress
+	y_avg /= 9.0;            //Average y stress
+	xy_avg /= 9.0;           //Average xy stress
+	z_avg /= 9.0;            //Average zeta value
+	n_avg /= 9.0;            //Average eta value
+
+	//Least Squares Fit
+	double a_x, b_x, c_x;         //Constants for x stress
+	double a_y, b_y, c_y;         //Constants for y stress
+	double a_xy, b_xy, c_xy;      //Constants for xy stress
+
+	double denom;                 //The denominator value that all constant calculations share
+	denom = z2*n2 - zn*zn;
+
+	//Solve Constants for x stress Fit
+	b_x = (n2*z_x - zn*n_x) / denom;
+	c_x = (z2*n_x - zn*z_x) / denom;
+	a_x = x_avg - b_x*z_avg - c_x*n_avg;
+
+	//Solve Constants for y stress Fit
+	b_y = (n2*z_y - zn*n_y) / denom;
+	c_y = (z2*n_y - zn*z_y) / denom;
+	a_y = y_avg - b_y*z_avg - c_y*n_avg;
+
+	//Solve Constants for xy stress Fit
+	b_xy = (n2*z_xy - zn*n_xy) / denom;
+	c_xy = (z2*n_xy - zn*z_xy) / denom;
+	a_xy = xy_avg - b_xy*z_avg - c_xy*n_avg;
+
+	cout << a_x << " " << b_x << " " << c_x << endl;
+	cout << a_y << " " << b_y << " " << c_y << endl;
+	cout << a_xy << " " << b_xy << " " << c_xy << endl;
+
+	//Calculate Stresses at Corners
+	for (int i = 0; i < g3.getNumPts(); i++)
+	{
+		for (int j = 0; j < g3.getNumPts(); j++)
+		{
+			cout << a_y + (i - 1.0)*b_y + (j - 1.0)*c_y << endl;
+		}
+	}
+	*/
+
+	
+}
+
+
 void defiElementQ8::getNodalData(calcStress2D stresses[])
 { //Gets nodal stresses in a vector form
 	int p = -1;
