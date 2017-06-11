@@ -6,7 +6,7 @@
 //		Date   : April 2017
 //
 //  Program Notes:
-//      The input file must be located in the same directory as main.cpp.
+//      The input files must be located in the data directory.
 //      Additionally, the user must manually specify the input file name
 //		in "globAcessItems.h"
 //-----------------------------------------------------------------------------
