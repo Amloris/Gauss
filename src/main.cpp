@@ -58,14 +58,9 @@ int main()
 	//write results
 	o_modeldata.writeResults();
 
-	/*
-	//Work in Progress
-	//-------------------------------------------------------------------------
-
 	//write plot data
 	o_modeldata.writePlotFile();
 
-	*/
 
 	cout << "FEM program finsihed." << endl;
 
