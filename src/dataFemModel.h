@@ -424,20 +424,32 @@ void dataFemModel::writeResults()
 
 	//Print Nodal Stresses
 	fout << endl << " Node ID      SigXX           SigYY         SigXY         SigZZ" << endl;
-	fout << endl << "          Work in progress" << endl << endl;
+	for (int i = 0; i < d_numNodes; i++)
+	{
+		int id;                                    //Node id 
+		double sigxx, sigyy, sigzz, sigxy;         //Nodal Stresses
 
+		//Get Data
+		id = i + 1;
+		sigxx = d_nodes[i]->getStress()->getSigXX();
+		sigyy = d_nodes[i]->getStress()->getSigYY();
+		sigzz = d_nodes[i]->getStress()->getSigZZ();
+		sigxy = d_nodes[i]->getStress()->getSigXY();
 
-
+		//Export Data
+		fout << "    " << id;
+		fout.setf(ios::scientific);
+		fout.precision(4);
+		fout.width(17);
+		fout << sigxx;
+		fout << "    " << sigyy;
+		fout << "    " << sigxy;
+		fout << "    " << sigzz;
+		fout << endl;
+	}
 
 	//Termination Message
 	fout << endl << " ***** End of results ***** ";
-
-
-
-
-
-
-
 
 }
 
