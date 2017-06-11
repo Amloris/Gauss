@@ -37,7 +37,7 @@ public:
 //Functions
 //-----------------------------------------------------------------------------
 calcStress2D::calcStress2D()  { /*std::cout << "Creating calcStress2D Class Object" << endl;*/ }
-calcStress2D::~calcStress2D() { std::cout << "Deleting calcStress2D Class Object" << endl; }
+calcStress2D::~calcStress2D() { /*std::cout << "Deleting calcStress2D Class Object" << endl;*/ }
 calcStress2D::calcStress2D(double xx, double yy, double zz, double xy)
 {
 	m_sigxx = xx;
