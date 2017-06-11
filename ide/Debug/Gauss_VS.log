@@ -1,3 +1,4 @@
 ﻿  main.cpp
+c:\users\aaron\documents\github_projects\gauss\src\calcFemSolver.h(434): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
   Gauss_VS.vcxproj -> C:\Users\Aaron\Documents\Github_Projects\Gauss\ide\Debug\Gauss_VS.exe
   Gauss_VS.vcxproj -> C:\Users\Aaron\Documents\Github_Projects\Gauss\ide\Debug\Gauss_VS.pdb (Partial PDB)
