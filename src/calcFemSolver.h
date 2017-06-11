@@ -113,7 +113,7 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 	globGaussJordan(m_k, m_f, m_displ);
 	cout << endl << "Displacement Vector (Active Constraints)" << endl;
 	m_displ->print();
-	cout << endl;
+	cout << endl << endl << endl;
 
 	//Save Displacements
 	saveDislpacements(dat, m_displ);
@@ -390,6 +390,13 @@ void calcFemSolver::calcNodalStresses(dataFemModel &dat)
 {	//1. calculate stresses at Gaussian points
 	//2. calculate stresses at each node by averaging all stress values 
 	//   at the node over connecting elements
+
+	//Gaussian Stresses for Each Element
+	for (int i = 0; i < dat.getNumElems(); i++)
+	{
+		dat.getElem(i)->calcStressesGaussPtsCorners();
+
+	}
 
 
 
