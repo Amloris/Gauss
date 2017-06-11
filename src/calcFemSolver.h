@@ -101,19 +101,11 @@ void calcFemSolver::solveFem(dataFemModel &dat)
 	//Assemble Global Stiffness Matrix
 	assembleK(dat, m_k, m_f);
 
-	cout << endl;
-	cout << "Load Vector from EssentialBCs" << endl;
-	m_f->print();
-	cout << endl;
-
 	//Assemble RHS Force Vector
 	assembleRHS(dat, m_f);
 
 	//Solve for Displacements	
 	globGaussJordan(m_k, m_f, m_displ);
-	cout << endl << "Displacement Vector (Active Constraints)" << endl;
-	m_displ->print();
-	cout << endl << endl << endl;
 
 	//Save Displacements
 	saveDislpacements(dat, m_displ);
@@ -319,8 +311,6 @@ void calcFemSolver::assembleRHS(dataFemModel &dat, defiVector *f)
 			}
 		}	
 	}
-	cout << "Load Vector from NaturalBCs" << endl;
-	force_nbc.print();
 
 	//Compute Forces from PointBCs
 	force_pbc.zero();
@@ -347,8 +337,6 @@ void calcFemSolver::assembleRHS(dataFemModel &dat, defiVector *f)
 			force_pbc.addCoeff(row, val);
 		}
 	}
-	cout << endl << "Load Vector from PointBCs" << endl;
-	force_pbc.print();
 
 	//Assemble into Global Force Vector
 	globAdd(*f, force_nbc);
