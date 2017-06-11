@@ -364,7 +364,36 @@ void dataFemModel::writeResults()
 	fout << "                  (Stresses at element center)" << endl;
 	fout << " Elem ID  Material   SigXX         SigYY         SigXY         SigZZ" << endl;
 
-	fout << endl << "          Work in progress" << endl << endl;
+	for (int i = 0; i < d_numElems; i++)
+	{
+		calcStress2D stressGPs[9];                //Holder for stresses at nodal positions
+		getElem(i)->getNodalData(stressGPs);      //Retrieve stress data for element
+
+		//Get Element Data
+		int id, mat;
+		id = i + 1;                               //Element number  
+		mat = getElem(i)->getMaterial()->getID(); //Material ID
+
+
+		//Get Stress Data
+		double sigxx, sigyy, sigzz, sigxy;        //Stress values at center
+		sigxx = stressGPs[8].getSigXX();
+		sigyy = stressGPs[8].getSigYY();
+		sigzz = stressGPs[8].getSigZZ();
+		sigxy = stressGPs[8].getSigXY();
+
+		//Export Data
+		fout << "    " << id << "       " << mat;
+		fout.setf(ios::scientific);
+		fout.precision(4);
+		fout.width(17);
+		fout << sigxx;
+		fout << "    " << sigyy;
+		fout << "    " << sigxy;
+		fout << "    " << sigzz;
+		fout << endl;
+	}
+	fout << endl << endl;
 
 	//Print Displacement Data
 	fout << " ********************** Nodal Data ********************************" << endl << endl;
@@ -392,9 +421,6 @@ void dataFemModel::writeResults()
 		fout << "    " << v;
 		fout << endl;
 	}
-
-
-
 
 	//Print Nodal Stresses
 	fout << endl << " Node ID      SigXX           SigYY         SigXY         SigZZ" << endl;
