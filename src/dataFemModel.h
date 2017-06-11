@@ -453,6 +453,103 @@ void dataFemModel::writeResults()
 
 }
 
+void dataFemModel::writePlotFile()
+{	//Records the processed results into the conplot file
+
+	//Header
+	fplot << "%1%" << endl;
+	fplot << "5" << " " << d_numNodes << " " << d_numElems << endl;
+	fplot << "SIGXX" << endl;
+	fplot << "SIGYY" << endl;
+	fplot << "SIGZZ" << endl;
+	fplot << "SIGXY" << endl;
+	
+	//Print Node Postions and Displacments
+	fplot << "SIG1" << endl;
+	for (int i = 0; i < d_numNodes; i++)
+	{
+		//Get Data
+		double x, y, u, v;             //Nodal positions (x,y), Nodal displacements (u,v)
+		x = d_nodes[i]->getX();
+		y = d_nodes[i]->getY();
+		u = d_nodes[i]->getDof(UX)->getValue();
+		v = d_nodes[i]->getDof(UY)->getValue();
+
+		//Export Data
+		fplot.setf(ios::scientific);
+		fplot.precision(4);
+		fplot.width(12);
+		fplot << x;
+		fplot << "    " << y;
+		fplot << "    " << u;
+		fplot << "    " << v;
+		fplot << endl;
+	}
+
+	//Print Stresses for Nodes in Each Element
+	for (int i = 0; i < d_numElems; i++)
+	{
+		//Data Holders
+		int const eNumNodes = 8;                 //Number of nodes in q8 element
+		defiNode* eNodes[eNumNodes];             //Holder for nodes
+		getElem(i)->getNodes(eNodes);            //Get list of nodes
+
+		//Get Nodes in Element and Rearange
+		defiVector Nodes(8);
+		for (int j = 0; j < getElem(i)->getNumNodes()/2; j++)
+		{
+			//Record first 4
+			int id = eNodes[2*j]->getID();
+			Nodes.setCoeff(j, id);
+
+			//Record last 4
+			id = eNodes[2*j+1]->getID();
+			Nodes.setCoeff(4 + j, id);
+		}
+
+		//Print Nodes in Element
+		int num = getElem(i)->getNumNodes();
+		fplot << num << " ";
+		for (int k = 0; k < getElem(i)->getNumNodes(); k++)
+		{
+			int temp;
+			temp = Nodes.getCoeff(k);
+			fplot << temp << " ";
+		}
+		fplot << endl;
+
+		//Print Nodal Stresses
+		for (int q = 0; q < getElem(i)->getNumNodes(); q++)
+		{
+			int id;                                    //Node id 
+			double sigxx, sigyy, sigzz, sigxy;         //Nodal Stresses
+
+			id = Nodes.getCoeff(q) - 1;
+
+			//Get Data
+			sigxx = d_nodes[id]->getStress()->getSigXX();
+			sigyy = d_nodes[id]->getStress()->getSigYY();
+			sigzz = d_nodes[id]->getStress()->getSigZZ();
+			sigxy = d_nodes[id]->getStress()->getSigXY();
+
+			//Export Data
+			fplot.setf(ios::scientific);
+			fplot.precision(4);
+			fplot.width(11);
+			fplot << sigxx;
+			fplot << "    " << sigyy;
+			fplot << "    " << sigzz;
+			fplot << "    " << sigxy;
+			fplot << "    " << sigxx;
+			fplot << endl;
+		}
+
+	}
+
+
+
+}
+
 void dataFemModel::setNumEquation(int value)	   //set d_neq = value
 {
 	d_neq = value;
