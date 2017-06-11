@@ -398,6 +398,56 @@ void calcFemSolver::calcNodalStresses(dataFemModel &dat)
 	}
 
 
+	//Sum Nodal Stresses for Connected Elements
+	int numNodes = dat.getNumNodes();               
+	defiVector tally(numNodes);                     //Holds instances of found nodes
+	tally.zero();
 
+	for (int i = 0; i < dat.getNumElems(); i++)
+	{
+		//Data Holders
+		int const eNumNodes = 8;                    //Number of nodes in q8 element
+		defiNode* eNodes[eNumNodes];                //Holder for nodes
+		dat.getElem(i)->getNodes(eNodes);           //Get list of nodes
+
+		calcStress2D stressGPs[9];                  //Holder for stresses at nodal positions
+		dat.getElem(i)->getNodalData(stressGPs);    //Retrieve stress data for element
+
+		for (int j = 0; j < dat.getElem(i)->getNumNodes(); j++)
+		{
+			//Add to Tally
+			int id = eNodes[j]->getID();
+			tally.addCoeff(id-1, 1.0);
+
+			//Get Stresses
+			double sigxx = stressGPs[j].getSigXX();
+			double sigyy = stressGPs[j].getSigYY();
+			double sigzz = stressGPs[j].getSigZZ();
+			double sigxy = stressGPs[j].getSigXY();
+
+			//Update Stresses
+			dat.getNode(id - 1)->getStress()->addSigXX(sigxx);
+			dat.getNode(id - 1)->getStress()->addSigYY(sigyy);
+			dat.getNode(id - 1)->getStress()->addSigZZ(sigzz);
+			dat.getNode(id - 1)->getStress()->addSigXY(sigxy);
+		}
+	}
+
+	//Average Nodal Stresses
+	for (int i = 0; i < numNodes; i++)
+	{
+		//Get Stresses
+		double sigxx = dat.getNode(i)->getStress()->getSigXX();
+		double sigyy = dat.getNode(i)->getStress()->getSigYY();
+		double sigzz = dat.getNode(i)->getStress()->getSigZZ();
+		double sigxy = dat.getNode(i)->getStress()->getSigXY();
+
+		//Average
+		int n = tally.getCoeff(i);
+		dat.getNode(i)->getStress()->setSigXX(sigxx / n);
+		dat.getNode(i)->getStress()->setSigYY(sigyy / n);
+		dat.getNode(i)->getStress()->setSigZZ(sigzz / n);
+		dat.getNode(i)->getStress()->setSigXY(sigxy / n);
+	}
 }
 #endif
