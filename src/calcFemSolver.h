@@ -391,11 +391,10 @@ void calcFemSolver::calcNodalStresses(dataFemModel &dat)
 	//2. calculate stresses at each node by averaging all stress values 
 	//   at the node over connecting elements
 
-	//Gaussian Stresses for Each Element
+	//Gaussian Stresses at Corners for Each Element
 	for (int i = 0; i < dat.getNumElems(); i++)
 	{
 		dat.getElem(i)->calcStressesGaussPtsCorners();
-
 	}
 
 

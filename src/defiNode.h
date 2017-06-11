@@ -57,6 +57,7 @@ defiNode::defiNode(int id)
 	d_dof[0] = new defiDof();
 	d_dof[1] = new defiDof();
 	d_nodeStress = new calcStress2D;
+	d_nodeStress->zero();                   //Initialize stored stresses to zero
 }
 
 int defiNode::getID() const
