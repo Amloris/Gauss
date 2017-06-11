@@ -298,7 +298,7 @@ void defiElementQ8::calcStressesGaussPtsCorners()
 		{
 			//Setup Variables
 			double detj = 0.0;                             //Dummy Value
-			double n = g3.getGaussPt(i);                   //Eta value
+			double n = g3.getGaussPt(2-i);                 //Eta value
 			double z = g3.getGaussPt(j);                   //Zeta value
 
 			//Setup Matrices and Vectors
@@ -310,23 +310,128 @@ void defiElementQ8::calcStressesGaussPtsCorners()
 			globMultiply(B, u, Strain);                    //Get strain at gauss point
 			globMultiply(D, Strain, Stress);               //Get stress at gauss point
 
-			cout << n << "  " << z << endl;
+			//Gaussian Stress Component Printouts
+			/*
+			cout << z << "  " << n << endl;
 			Stress.print();
 			cout << endl;
+			*/
 
-			//Store Data
+			//Store Data in d_stresssGPs
+			d_stressGPs[i][j].setSigXX(Stress.getCoeff(0));     //Orientation of storage matches the orientation 
+			d_stressGPs[i][j].setSigYY(Stress.getCoeff(1));     //of the isoparametric element in device unit space 
+			d_stressGPs[i][j].setSigXY(Stress.getCoeff(2));
+
+			//Store Data in Matrices
 			stress_x.setCoeff(i, j, Stress.getCoeff(0));
 			stress_y.setCoeff(i, j, Stress.getCoeff(1));
-			stress_xy.setCoeff(i, j, Stress.getCoeff(2));			
+			stress_xy.setCoeff(i, j, Stress.getCoeff(2));
 		}
 	}
-
+	//Separated Gaussian Stress Components Printout
+	/*
+	cout << endl << endl;
 	stress_x.print();
 	stress_y.print();
 	stress_xy.print();
+	*/
 
+
+	//Bilinear Fit of Gaussian Stress Components (Failed attempt)
+	//----------------------------------------------------------------------------
+	//Conducts a bilinear fit of the stress compoenents by using matrix
+	//operations. The independent values array stores the summations of the
+	//dependent variables ζ and η.  The dependent value arrays store info relating
+	//the dependent variable and the independent variables. The constants for the 
+	//least squares fit are then solved for using Gauss Jordan elimination.
+	//----------------------------------------------------------------------------
+	//Warning:
+	//     This section works most of the time, but if any of the stress
+	//components are zero at the calculated Gaussian points the constants are
+	//determined to be zero by the Gauss-Jordan solver.  This section (when it
+	//decides to work) agrees with the constants that are computed using the 
+	//second method listed below. Use this bilinear least sqaures fit calculator
+	//with caution until the problem can be fixed.
+	//----------------------------------------------------------------------------
 	/*
+	//Construct Independent Values Array
+	defiMatrix A(3, 3);                                    //Holds coefficients of primary array for Least Sqaures fit later
+	A.zero();
+	A.setCoeff(0, 0, 9.0);                                 //Set N
 
+	for (int i = 0; i < g3.getNumPts(); i++)
+	{
+		for (int j = 0; j < g3.getNumPts(); j++)
+		{
+			//Setup Variables
+			double n = g3.getGaussPt(2 - i);               //Eta value
+			double z = g3.getGaussPt(j);                   //Zeta value
+
+			//Load the Matrix
+			A.addCoeff(0, 1, z);
+			A.addCoeff(0, 2, n);
+			A.addCoeff(1, 0, z);
+			A.addCoeff(1, 1, z*z);
+			A.addCoeff(1, 2, z*n);
+			A.addCoeff(2, 0, n);
+			A.addCoeff(2, 1, z*n);
+			A.addCoeff(2, 2, n*n);
+		}
+	}
+
+	//Construct Dependent Value Arrays
+	defiVector x(3), y(3), xy(3);                            //Stores the dependent component arrays 
+	defiVector x_coeff(3), y_coeff(3), xy_coeff(3);          //Stores the best fit constants
+	x.zero(); y.zero(); xy.zero();
+	x_coeff.zero(); y_coeff.zero(); xy_coeff.zero();
+
+	for (int i = 0; i < g3.getNumPts(); i++)
+	{
+		for (int j = 0; j < g3.getNumPts(); j++)
+		{
+			//Setup Variables
+			double n = g3.getGaussPt(2 - i);               //Eta value
+			double z = g3.getGaussPt(j);                   //Zeta value
+
+			double x_val = d_stressGPs[i][j].getSigXX();
+			double y_val = d_stressGPs[i][j].getSigYY();
+			double xy_val = d_stressGPs[i][j].getSigXY();
+
+			//Load the Matrix
+			x.addCoeff(0, x_val);
+			x.addCoeff(1, z*x_val);
+			x.addCoeff(2, n*x_val);
+
+			y.addCoeff(0, y_val);
+			y.addCoeff(1, z*y_val);
+			y.addCoeff(2, n*y_val);
+
+			xy.addCoeff(0, xy_val);
+			xy.addCoeff(1, z*xy_val);
+			xy.addCoeff(2, n*xy_val);
+		}
+	}
+
+	
+	globGaussJordan(&A, &x, &x_coeff);
+	globGaussJordan(&A, &y, &xy_coeff);
+	globGaussJordan(&A, &xy, &xy_coeff);
+
+	x_coeff.print();
+	y_coeff.print();
+	xy_coeff.print();
+	*/
+	
+
+
+	//Bilinear Fit of Gaussian Stress Components
+	//----------------------------------------------------------------------------
+	//Conducts a bilinear fit of the stress components by using summations
+	//involving the independent variables and dependent variable. Formulas are 
+	//then used that compute the curve fit constants by using the summations for
+	//a system with two indepentent variables.  It is messy and hardcoded, but it
+	//works...
+	//----------------------------------------------------------------------------
 
 	//Bilinear Curve Fits
 	double x_avg = 0.0;      //Sum for x stress average  
@@ -351,13 +456,13 @@ void defiElementQ8::calcStressesGaussPtsCorners()
 		for (int j = 0; j < g3.getNumPts(); j++)
 		{
 			//Gauss Points
-			double n = g3.getGaussPt(i);                   //Eta value
-			double z = g3.getGaussPt(j);                   //Zeta value
+			double n = g3.getGaussPt(2-i);                   //Eta value
+			double z = g3.getGaussPt(j);                     //Zeta value
 
-			//Computed Stresses
-			double x = stress_x.getCoeff(i, j);               //Stress x at gaussian point
-			double y = stress_y.getCoeff(i, j);               //Stress y at gaussian point
-			double xy = stress_xy.getCoeff(i, j);             //Stress xy at gaussian point
+			//Computed Stresses       
+			double x = d_stressGPs[i][j].getSigXX();	     //Stress x at gaussian point
+			double y = d_stressGPs[i][j].getSigYY();         //Stress y at gaussian point
+			double xy = d_stressGPs[i][j].getSigXY();        //Stress xy at gaussian point
 
 			//Add to Sums
 			x_avg += x;
@@ -407,21 +512,87 @@ void defiElementQ8::calcStressesGaussPtsCorners()
 	c_xy = (z2*n_xy - zn*z_xy) / denom;
 	a_xy = xy_avg - b_xy*z_avg - c_xy*n_avg;
 
+
+	//Curvefit Constants Printout
+	/*
 	cout << a_x << " " << b_x << " " << c_x << endl;
 	cout << a_y << " " << b_y << " " << c_y << endl;
 	cout << a_xy << " " << b_xy << " " << c_xy << endl;
-
-	//Calculate Stresses at Corners
-	for (int i = 0; i < g3.getNumPts(); i++)
-	{
-		for (int j = 0; j < g3.getNumPts(); j++)
-		{
-			cout << a_y + (i - 1.0)*b_y + (j - 1.0)*c_y << endl;
-		}
-	}
 	*/
 
-	
+	//Calculate Stresses at Corners and Re-map the Locations
+	//-------------------------------------------------------------------------
+	//The section below will compute the stress components at the nodal
+	//positions of the element.  It will re-map where the components are saved 
+	//in d_stressGPs so that when getNodalData is called the returned vector
+	//matches how the nodes are stored in the element. The stress components of
+	//the center of the element are stored in last position of the returned 
+	//vector.
+	//-------------------------------------------------------------------------
+
+	defiMatrix Pos(9, 2);                   //Stores the mapping positions of the nodes
+	Pos.setCoeff(0, 0, -1.0);               //ζ position of first node
+	Pos.setCoeff(0, 1, -1.0);               //η position of first node
+	Pos.setCoeff(1, 0, 0.0);                //ζ position of second node
+	Pos.setCoeff(1, 1, -1.0);               //η position of second node
+	Pos.setCoeff(2, 0, 1.0);                //ζ position of third node
+	Pos.setCoeff(2, 1, -1.0);               //η position of third node
+	Pos.setCoeff(3, 0, 1.0);                             
+	Pos.setCoeff(3, 1, 0.0);                            
+	Pos.setCoeff(4, 0, 1.0);
+	Pos.setCoeff(4, 1, 1.0);
+	Pos.setCoeff(5, 0, 0.0);
+	Pos.setCoeff(5, 1, 1.0);
+	Pos.setCoeff(6, 0, -1.0);
+	Pos.setCoeff(6, 1, 1.0);
+	Pos.setCoeff(7, 0, -1.0);
+	Pos.setCoeff(7, 1, 0.0);
+	Pos.setCoeff(8, 0, 0.0);                //ζ position of center of element 
+	Pos.setCoeff(8, 1, 0.0);                //η position of center of element
+
+	for (int i = 0; i < Pos.getNumRows(); i++)
+	{
+		//Save Location
+		int m = i / 3;                      //Computes where we will save the stresses in d_stressGPs
+		int n = i % 3;                      //Computes where we will save the stresses in d_stressGPs
+
+		//Natural Coordinate Values
+		double zeta = Pos.getCoeff(i, 0);   //ζ
+		double eta = Pos.getCoeff(i, 1);    //η
+
+		//Compute Stresses at Remapped Positions
+		double sigXX = 0.0;
+		double sigYY = 0.0;
+		double sigZZ = 0.0;
+		double sigXY = 0.0;
+
+		sigXX = a_x + b_x*zeta + c_x*eta;
+		sigYY = a_y + b_y*zeta + c_y*eta;
+		sigXY = a_xy + b_xy*zeta + c_xy*eta;
+
+		//Compute SigZZ Based on Problem Type
+		double nu = d_material->getNu();              //Poisson's Ratio
+		int probType = d_material->getprobType();     //Problem type
+
+		if (probType == 1)
+		{
+			sigZZ = 0.0;                              //Zero for plane stress
+		}
+		if (probType == 2)
+		{
+			sigZZ = nu*(sigXX + sigYY);               //Non-zero for plane strain
+		}
+
+		//Save to d_stressGPs
+		d_stressGPs[m][n].setSigXX(sigXX);
+		d_stressGPs[m][n].setSigYY(sigYY);
+		d_stressGPs[m][n].setSigZZ(sigZZ);
+		d_stressGPs[m][n].setSigXY(sigXY);
+
+
+		//Stress Printout
+		//cout << sigXX << "  " << sigYY << "  " << sigXY << "  " << sigZZ <<endl;
+	}	
 }
 
 
