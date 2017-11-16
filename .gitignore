@@ -5,5 +5,5 @@
 .git
 .vs
 ide/*
-ide/Debug
+ide/
 !ide/readme.txt
