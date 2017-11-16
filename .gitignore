@@ -6,4 +6,4 @@
 .vs
 ide/*
 !ide/readme.txt
-Debug/
+ide/Debug/
