@@ -4,3 +4,5 @@
 #Visual Studio Components
 .git
 .vs
+ide/*
+!ide/readme.txt
